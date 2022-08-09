@@ -1,6 +1,6 @@
 {
   "name": "@schummar/runp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Run multiple tasks in parallel while keeping their output nicely separated",
   "main": "dist/index.js",
   "bin": "dist/cli.js",

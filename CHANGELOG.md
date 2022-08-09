@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.5](https://www.github.com/schummar/runp/compare/v1.0.4...v1.0.5) (2022-08-09)
+
+
+### Bug Fixes
+
+* better color support ([014dcca](https://www.github.com/schummar/runp/commit/014dcca5633a1ca5d08e9898f5e9adde49181497))
+
 ### [1.0.4](https://www.github.com/schummar/runp/compare/v1.0.3...v1.0.4) (2022-08-09)
 
 
