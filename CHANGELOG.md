@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.7](https://www.github.com/schummar/runp/compare/v1.0.6...v1.0.7) (2022-08-09)
+
+
+### Bug Fixes
+
+* exit code ([ab2016a](https://www.github.com/schummar/runp/commit/ab2016a46e5a4736979ecf4c2ac845664a9abc61))
+
 ### [1.0.6](https://www.github.com/schummar/runp/compare/v1.0.5...v1.0.6) (2022-08-09)
 
 
