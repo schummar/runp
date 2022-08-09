@@ -14,6 +14,7 @@
     "build": "npm-run-all build:clean -p build:compile:*",
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:main": "esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --external:tasuku",
+    "build:compile:types": "tsc --emitDeclarationOnly",
     "build:compile:cli": "esbuild --platform=node --format=cjs src/cli.ts --outfile=dist/cli.js",
     "prepublishOnly": "run-s lint build"
   },

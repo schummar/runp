@@ -5,18 +5,31 @@ import { job } from './job';
 import { formatTime, loadScripts } from './util';
 
 export interface RunpCommonOptions {
+  /** Maximum number of lines for each command output
+   * @default 10
+   */
   maxLines?: number;
+  /** Treat commands as npm scripts
+   * @default false
+   */
   npm?: boolean;
+  /** Keep output of successful commands visible
+   * @default false
+   */
   keepOutput?: boolean;
 }
 
 export interface RunpCommand extends RunpCommonOptions {
+  /** Command name. Only for display purposes. */
   name?: string;
+  /** Program to execute */
   cmd: string;
+  /** Args to pass into program */
   args?: string[];
 }
 
 export interface RunpOptions extends RunpCommonOptions {
+  /** A list of command to execute in parallel */
   commands: (string | [cmd: string, ...args: string[]] | RunpCommand)[];
 }
 
