@@ -9,7 +9,13 @@ export function job({ name, cmd, args = [], maxLines, keepOutput }: RunpCommand)
   const output = [''];
   let onOutput: ((out: string) => void) | undefined;
 
-  const subProcess = spawn(cmd, args, { stdio: 'pipe' });
+  const subProcess = spawn(cmd, args, {
+    stdio: 'pipe',
+    env: {
+      ...process.env,
+      FORCE_COLOR: process.stdout.isTTY ? '1' : undefined, // Some libs color output when this env var is set
+    },
+  });
 
   const append = (data: any) => {
     const [first, ...rest] = data.toString().split('\n');

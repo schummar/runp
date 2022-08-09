@@ -88,9 +88,6 @@ export async function runp({ commands, maxLines = DEFAULT_MAX_LINES, npm, keepOu
 }
 
 function renderTTY(jobs: ReturnType<typeof job>[]) {
-  // Some libs color output when this env var is set
-  process.env.FORCE_COLOR = '1';
-
   for (const { name, done, onOutput, time, keepOutput } of jobs) {
     task(name, async ({ setOutput, setStatus, setError }) => {
       try {
