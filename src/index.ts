@@ -28,23 +28,34 @@ export interface RunpCommand extends RunpCommonOptions {
   args?: string[];
 }
 
+export type RunpCommandRaw = Omit<RunpCommand, 'args'> & { args?: (string | false | undefined | null)[] };
+
 export interface RunpOptions extends RunpCommonOptions {
   /** A list of command to execute in parallel */
-  commands: (string | [cmd: string, ...args: string[]] | RunpCommand)[];
+  commands: (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
 }
 
 const DEFAULT_MAX_LINES = 10;
 
 export async function runp({ commands, maxLines = DEFAULT_MAX_LINES, npm, keepOutput }: RunpOptions) {
-  const normalizedCommands = commands.map((command) => {
+  const normalizedCommands = commands.flatMap((command) => {
+    if (!command) {
+      return [];
+    }
+
     if (typeof command === 'string') {
       const [cmd = '', ...args] = quotedStringSpaceSplit(command);
       return { cmd, args };
     }
+
     if (Array.isArray(command)) {
       return { cmd: command[0], args: command.slice(1) };
     }
-    return command;
+
+    return {
+      ...command,
+      args: command.args?.filter((x): x is string => typeof x === 'string'),
+    };
   });
 
   const resolvedCommands: RunpCommand[] = [];
