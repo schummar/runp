@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.6](https://www.github.com/schummar/runp/compare/v1.0.5...v1.0.6) (2022-08-09)
+
+
+### Bug Fixes
+
+* accept some falsy values ([7e1a966](https://www.github.com/schummar/runp/commit/7e1a966081f9ca266fddf7cf94fa583e032424ae))
+
 ### [1.0.5](https://www.github.com/schummar/runp/compare/v1.0.4...v1.0.5) (2022-08-09)
 
 
