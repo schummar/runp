@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.0.8](https://www.github.com/schummar/runp/compare/v1.0.7...v1.0.8) (2022-08-09)
+
+
+### Bug Fixes
+
+* bin ([2129044](https://www.github.com/schummar/runp/commit/21290449b2b34c6cfba356c75ef011f9dcf1972c))
+
 ### [1.0.7](https://www.github.com/schummar/runp/compare/v1.0.6...v1.0.7) (2022-08-09)
 
 
