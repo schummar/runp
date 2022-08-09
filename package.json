@@ -1,9 +1,14 @@
 {
-  "name": "runp",
+  "name": "@schummar/runp",
   "version": "1.0.0",
-  "description": "",
+  "description": "Run multiple tasks in parallel while keeping their output nicely separated",
   "main": "dist/index.js",
   "bin": "dist/cli.js",
+  "repository": "schummar/runp",
+  "author": {
+    "name": "Marco Schumacher",
+    "email": "marco@schumacher.dev"
+  },
   "scripts": {
     "lint": "eslint src",
     "build": "runp --npm build:*",
@@ -11,8 +16,7 @@
     "build:cli": "esbuild --platform=node --format=cjs src/cli.ts --outfile=dist/cli.js"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/node": "^18.6.5",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
@@ -27,5 +31,9 @@
     "multimatch": "^6.0.0",
     "quoted-string-space-split": "^1.1.1",
     "tasuku": "^2.0.0"
-  }
+  },
+  "files": [
+    "dist",
+    "cli.js"
+  ]
 }
