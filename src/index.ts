@@ -96,6 +96,12 @@ export async function runp({ commands, maxLines = DEFAULT_MAX_LINES, npm, keepOu
   } else {
     renderNonTTY(jobs);
   }
+
+  try {
+    await Promise.all(jobs.map((job) => job.done));
+  } catch {
+    process.exit(1);
+  }
 }
 
 function renderTTY(jobs: ReturnType<typeof job>[]) {
