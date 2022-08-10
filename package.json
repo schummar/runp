@@ -16,7 +16,7 @@
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:main": "NODE_ENV=production esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --external:ink --external:react",
     "build:compile:cli": "esbuild --platform=node --format=cjs src/cli.ts --outfile=dist/cli.js",
-    "build:compile:types": "tsc --emitDeclarationOnly",
+    "build:compile:types": "tsc -p tsconfig.build.json",
     "prepublishOnly": "runp :s lint build:clean :p build:compile:*"
   },
   "keywords": [],

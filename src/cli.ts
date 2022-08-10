@@ -1,6 +1,10 @@
 import { cli } from 'cleye';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { runp } from '.';
-import { version } from '../package.json';
+
+const pkgJson = readFileSync(resolve(__dirname, '..', 'package.json'), 'utf8');
+const pkg = JSON.parse(pkgJson);
 
 const argv = cli({
   name: 'runp',
@@ -24,7 +28,7 @@ const argv = cli({
     },
   },
 
-  version,
+  version: pkg.version,
 });
 
 runp({
