@@ -28,6 +28,8 @@ export interface RunpCommand extends RunpCommonOptions {
    * @default false
    */
   dependsOn?: string | number | Array<string | number>;
+  /** Task will run forever. It won't display a spinner but a different symbol instead */
+  forever?: boolean;
 }
 
 export type RunpCommandRaw = Omit<RunpCommand, 'args'> & { args?: (string | false | undefined | null)[] };
@@ -43,6 +45,7 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
   const npmScripts = await loadNpmScripts();
   const npmRunner = await whichNpmRunner();
   let serial = false,
+    forever = false,
     index = 0,
     deps = new Array<string | number>();
 
@@ -51,15 +54,19 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
       return [];
     }
 
-    if (command === ':s') {
-      serial = true;
-      deps = Array.from(Array(index).keys());
-      return [];
-    }
+    if (typeof command === 'string' && command.match(/^:[spf]+$/)) {
+      if (command.includes('s')) {
+        serial = true;
+        deps = Array.from(Array(index).keys());
+      }
+      if (command.includes('p')) {
+        serial = false;
+        deps = Array.from(Array(index).keys());
+      }
+      if (command.includes('f')) {
+        forever = true;
+      }
 
-    if (command === ':p') {
-      serial = false;
-      deps = Array.from(Array(index).keys());
       return [];
     }
 
@@ -77,6 +84,7 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
       args: command.args?.filter((x): x is string => typeof x === 'string'),
       id: command.id ?? index,
       dependsOn: command.dependsOn ?? [...deps],
+      forever: command.forever ?? forever,
     };
 
     index++;

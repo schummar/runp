@@ -3,7 +3,7 @@ import { useStoreState } from 'schummar-state/react';
 import { Task } from '../task';
 import { Spinner } from './spinner';
 
-export function TaskListEntry({ command: { keepOutput }, name, state }: Task) {
+export function TaskListEntry({ command: { keepOutput, forever }, name, state }: Task) {
   const status = useStoreState(state, (x) => x.status);
   const time = useStoreState(state, (x) => x.time);
   const shortOutput = useStoreState(state, (x) => x.shortOutput);
@@ -14,6 +14,8 @@ export function TaskListEntry({ command: { keepOutput }, name, state }: Task) {
         <Box>
           {status === 'pending' ? (
             <Text>↳</Text>
+          ) : status === 'inProgress' && forever ? (
+            <Text color="green">▶</Text>
           ) : status === 'inProgress' ? (
             <Spinner color="yellow" />
           ) : status === 'done' ? (
