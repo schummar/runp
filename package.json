@@ -12,17 +12,17 @@
   },
   "scripts": {
     "lint": "eslint --cache --cache-location=node_modules/.cache/eslint/.eslintcache --cache-strategy=content --max-warnings=0 src",
-    "build": "npm run build:clean && runp --npm build:compile:*",
+    "build": "runp build:clean :p build:compile:*",
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:main": "NODE_ENV=production esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --external:ink --external:react",
     "build:compile:cli": "esbuild --platform=node --format=cjs src/cli.ts --outfile=dist/cli.js",
     "build:compile:types": "tsc --emitDeclarationOnly",
-    "prepublishOnly": "npm run lint && npm run build"
+    "prepublishOnly": "runp :s lint build:clean :p build:compile:*"
   },
   "keywords": [],
   "license": "MIT",
   "devDependencies": {
-    "@schummar/runp": "^1.0.8",
+    "@schummar/runp": "^1.2.0",
     "@types/node": "^18.6.5",
     "@types/react": "^18.0.17",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
