@@ -11,12 +11,12 @@
     "email": "marco@schumacher.dev"
   },
   "scripts": {
-    "lint": "eslint src",
+    "lint": "eslint --cache --cache-location=node_modules/.cache/eslint/.eslintcache --cache-strategy=content --max-warnings=0 src",
     "build": "npm run build:clean && runp --npm build:compile:*",
     "build:clean": "rimraf \"dist/**/*\"",
-    "build:compile:main": "esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --external:tasuku",
-    "build:compile:types": "tsc --emitDeclarationOnly",
+    "build:compile:main": "NODE_ENV=production esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --external:ink --external:react",
     "build:compile:cli": "esbuild --platform=node --format=cjs src/cli.ts --outfile=dist/cli.js",
+    "build:compile:types": "tsc --emitDeclarationOnly",
     "prepublishOnly": "npm run lint && npm run build"
   },
   "keywords": [],
@@ -24,18 +24,26 @@
   "devDependencies": {
     "@schummar/runp": "^1.0.8",
     "@types/node": "^18.6.5",
+    "@types/react": "^18.0.17",
     "@typescript-eslint/eslint-plugin": "^5.33.0",
+    "@typescript-eslint/parser": "^5.33.0",
+    "cleye": "^1.2.1",
     "esbuild": "^0.14.54",
     "eslint": "^8.21.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "immer": "^9.0.15",
+    "multimatch": "^6.0.0",
     "prettier": "^2.7.1",
+    "quoted-string-space-split": "^1.1.1",
+    "rimraf": "^3.0.2",
+    "schummar-state": "0.4.3",
     "tsx": "^3.8.1",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "cleye": "^1.2.1",
-    "multimatch": "^6.0.0",
-    "quoted-string-space-split": "^1.1.1",
-    "tasuku": "^2.0.0"
+    "ink": "^3.2.0",
+    "react": "^17.0.0"
   },
   "files": [
     "dist",

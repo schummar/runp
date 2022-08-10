@@ -1,22 +1,25 @@
-import { readFile } from 'fs/promises';
+import { readFile, stat } from 'fs/promises';
 
-export function renderOutput(cmd: string, lines: string[], maxLines = Infinity) {
-  const cols = process.stdout.columns - 4;
+export function renderOutput(cmd: string, lines: string, outputLength = Infinity) {
+  const cols = process.stdout.columns - 8;
 
-  const last = lines.slice(-maxLines).flatMap((line) => {
-    const chunks: string[] = [];
+  const last = lines
+    .split('\n')
+    .slice(-outputLength)
+    .flatMap((line) => {
+      const chunks: string[] = [];
 
-    while (line.length > cols) {
-      chunks.push(line.slice(0, cols));
-      line = `  ${line.slice(cols)}`;
-    }
+      while (line.length > cols) {
+        chunks.push(line.slice(0, cols));
+        line = `  ${line.slice(cols)}`;
+      }
 
-    chunks.push(line);
+      chunks.push(line);
 
-    return chunks;
-  });
+      return chunks;
+    });
 
-  return `${cmd}\n${last.slice(-maxLines).join('\n')}`.trim().concat('\n');
+  return `> ${cmd}\n\n${last.slice(-outputLength).join('\n')}`.trim();
 }
 
 export function abbrev(s: string) {
@@ -33,13 +36,37 @@ export function formatTime(ms: number) {
   return `${(ms / 1000).toFixed(3)}s`;
 }
 
-export async function loadScripts(): Promise<Record<string, string>> {
+export async function loadScripts(): Promise<string[]> {
+  let json;
   try {
-    const json = await readFile('package.json', 'utf-8');
+    json = await readFile('package.json', 'utf-8');
+  } catch {
+    return [];
+  }
+
+  try {
     const pkg = JSON.parse(json);
-    return pkg.scripts ?? {};
+    return Object.keys(pkg.scripts ?? {});
   } catch (e) {
     console.error('Failed to read package.json:', e);
-    return {};
+    return [];
   }
+}
+
+export async function whichNpmRunner() {
+  try {
+    await stat('yarn.lock');
+    return 'yarn';
+  } catch {
+    // ignore
+  }
+
+  try {
+    await stat('pnpm-lock.yaml');
+    return 'pnpm';
+  } catch {
+    // ignore
+  }
+
+  return 'npm';
 }
