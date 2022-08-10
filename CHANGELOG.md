@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://www.github.com/schummar/runp/compare/v1.0.9...v1.1.0) (2022-08-10)
+
+
+### Features
+
+* task dependecies ([2ce0603](https://www.github.com/schummar/runp/commit/2ce06035a4762b39e494685f4997667053d92c5e))
+
 ### [1.0.9](https://www.github.com/schummar/runp/compare/v1.0.8...v1.0.9) (2022-08-09)
 
 
