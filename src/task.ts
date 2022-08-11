@@ -18,7 +18,7 @@ export interface TaskState {
 }
 
 export function task(command: RunpCommand, allTasks: () => Task[]): Task {
-  const { name, cmd, args = [], outputLength, dependsOn } = command;
+  const { name, cmd, args = [], cwd, outputLength, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
   const state = new Store<TaskState>({
     status: 'pending',
@@ -65,6 +65,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
 
     const subProcess = spawn(cmd, args, {
       stdio: 'pipe',
+      cwd,
       env: {
         ...process.env,
         FORCE_COLOR: process.stdout.isTTY ? '1' : undefined, // Some libs color output when this env var is set
@@ -106,7 +107,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
 
   return {
     command,
-    name: name ?? abbrev(fullCmd),
+    name: (name ?? abbrev(fullCmd)) + (cwd ? ` (${cwd})` : ''),
     state,
     result,
   };

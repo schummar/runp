@@ -30,6 +30,8 @@ export interface RunpCommand extends RunpCommonOptions {
   dependsOn?: string | number | Array<string | number>;
   /** Task will run forever. It won't display a spinner but a different symbol instead */
   forever?: boolean;
+  /** Set cwd for command */
+  cwd?: string;
 }
 
 export type RunpCommandRaw = Omit<RunpCommand, 'args'> & { args?: (string | false | undefined | null)[] };
