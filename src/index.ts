@@ -46,11 +46,15 @@ export const DEFAULT_OUTPUT_LENGTH = 10;
 export const RUNP_TASK_V = 'v1';
 export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}`;
 
+const switchRegexp = /s|p|f(=(true|false))?|k(=(true|false))?|n=\d+/g;
+
 export async function runp(options: RunpOptions) {
   const npmScripts = await loadNpmScripts();
   const npmRunner = await whichNpmRunner();
   let serial = false,
-    forever = false,
+    forever = undefined as boolean | undefined,
+    keepOutput = undefined as boolean | undefined,
+    outputLength = undefined as number | undefined,
     index = 0,
     deps = new Array<string | number>();
 
@@ -59,17 +63,21 @@ export async function runp(options: RunpOptions) {
       return [];
     }
 
-    if (typeof command === 'string' && command.match(/^:[spf]+$/)) {
-      if (command.includes('s')) {
-        serial = true;
-        deps = Array.from(Array(index).keys());
-      }
-      if (command.includes('p')) {
-        serial = false;
-        deps = Array.from(Array(index).keys());
-      }
-      if (command.includes('f')) {
-        forever = true;
+    if (typeof command === 'string' && command.match(`^:(${switchRegexp.source})+$`)) {
+      for (const [sw] of command.matchAll(switchRegexp)) {
+        if (sw === 's') {
+          serial = true;
+          deps = Array.from(Array(index).keys());
+        } else if (sw === 'p') {
+          serial = false;
+          deps = Array.from(Array(index).keys());
+        } else if (sw?.startsWith('f')) {
+          forever = !sw.endsWith('false');
+        } else if (sw?.startsWith('k')) {
+          keepOutput = !sw.endsWith('false');
+        } else if (sw?.startsWith('n')) {
+          outputLength = Number(sw.slice(2));
+        }
       }
 
       return [];
@@ -89,8 +97,8 @@ export async function runp(options: RunpOptions) {
       args: command.args?.filter((x): x is string => typeof x === 'string'),
       id: command.id ?? index,
       dependsOn: command.dependsOn ?? [...deps],
-      outputLength: command.outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
-      keepOutput: command.keepOutput ?? options.keepOutput,
+      outputLength: command.outputLength ?? outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
+      keepOutput: command.keepOutput ?? keepOutput ?? options.keepOutput,
       forever: command.forever ?? forever ?? options.forever,
     };
 

@@ -4,6 +4,7 @@ export function renderOutput(cmd: string, lines: string, outputLength = Infinity
   const cols = process.stdout.columns - 8;
 
   const last = lines
+    .trim()
     .split('\n')
     .slice(-outputLength)
     .flatMap((line) => {
@@ -19,7 +20,7 @@ export function renderOutput(cmd: string, lines: string, outputLength = Infinity
       return chunks;
     });
 
-  return `> ${cmd}\n\n${last.slice(-outputLength).join('\n')}`.trim();
+  return `${last.slice(-outputLength).join('\n')}`.trim();
 }
 
 export function abbrev(s: string) {
