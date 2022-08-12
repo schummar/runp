@@ -30,7 +30,6 @@ export interface RunpCommand extends RunpCommonOptions {
    * @default false
    */
   dependsOn?: string | number | Array<string | number>;
-
   /** Set cwd for command */
   cwd?: string;
 }

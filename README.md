@@ -4,6 +4,16 @@
 ![](https://badgen.net/github/license/schummar/runp)
 ![](https://badgen.net/npm/types/@schummar/runp)
 
+## Features
+
+- Run commands in parallel, in series or any combination
+- Reference npm scripts by name with glob support
+- Command outputs will be separated in their own blocks instead of all mixed together
+- Nested `runp` calls will be merged with indented sub commands
+- CLI and type-safe Node API
+
+[Try it on StackBlitz](https://stackblitz.com/edit/runp-demo?file=package.json)
+
 ![](docs/img/demo1.gif)
 
 # Getting started
@@ -11,7 +21,7 @@
 ## Install
 
 ```bash
-npm install -g @schummar/runp
+npm i @schummar/runp
 ```
 
 ## Exectute commands
@@ -109,3 +119,93 @@ Before the first `:p` or `:s` switch appears, all commands will be exuted in par
 ## Combining switches
 
 Flags and switches can be combined. E.g. `-fk` or `:pfn=10k=false`
+
+# Error handling
+
+When an error occurs the command will be marked with a red x-symbol and the command output will remain visible.
+Any parallel tasks are allowed to continue but dependent commands will not be executed.
+
+![](docs/img/demo3.gif)
+
+# Nested execution
+
+When `runp` is executed as child process of another `runp` instance, it delegates its tasks to the parent instance.
+Commands will be shown as child commands to the parent instance's command.
+
+That is useful for exmaple for composing npm scripts.
+Say we have the following `package.json`:
+
+```json
+{
+  "scripts": {
+    "lint": "eslint",
+    "clean": "rimraf dist",
+    "build": "build:*",
+    "build:esm": "some build command",
+    "build:cjs": "another build command",
+    "build:type": "tsc --emitDeclarationOnly",
+    "prepublishOnly": "runp :s lint build"
+  }
+}
+```
+
+Running `npm publish` will now execute the `prepublishOnly` script, which in turn has `runp` execute the `lint` and `build` scripts.
+The `build` script executes another instance of `runp` with its `build:*` commands.
+The output however looks seamless:
+
+![](docs/img/demo4.gif)
+
+# Node API
+
+```ts
+import { runp } from '@schummar/runp';
+
+runp({
+  keepOutput: true,
+  outputLength: 10,
+
+  commands: [
+    {
+      cmd: 'clean',
+      name: 'Clean',
+      keepOutput: false,
+    },
+
+    ':p',
+
+    {
+      cmd: 'build:*',
+      cwd: 'src',
+    },
+
+    ':s',
+
+    {
+      cmd: 'rm',
+      args: ['-rf', '.cache'],
+    },
+  ],
+});
+```
+
+The Node API allows running `runp` programatically with all the same options, plus a bit more fine grained control.
+
+## commands.cmd
+
+The executable or npm script to run.
+
+## commands.args
+
+Arguments to pass to executable or npm script.
+
+## commands.cwd
+
+Execute command in different working directory
+
+## commands.id
+
+Give a task an id that can be referenced as dependency.
+
+## commands.depdendsOn
+
+Command will only start once all dependencies have finished.
