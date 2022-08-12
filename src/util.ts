@@ -70,3 +70,7 @@ export async function whichNpmRunner() {
 
   return 'npm';
 }
+
+export function indent(s: string) {
+  return s.replace(/\n([^\n])/g, '\n    $1');
+}

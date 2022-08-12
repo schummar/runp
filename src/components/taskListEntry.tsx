@@ -7,6 +7,7 @@ export function TaskListEntry({ command: { keepOutput, forever }, name, state }:
   const status = useStoreState(state, (x) => x.status);
   const time = useStoreState(state, (x) => x.time);
   const shortOutput = useStoreState(state, (x) => x.shortOutput);
+  const subTasks = useStoreState(state, (x) => x.subTasks);
 
   return (
     <Box flexDirection="column">
@@ -41,6 +42,12 @@ export function TaskListEntry({ command: { keepOutput, forever }, name, state }:
           <Text>{shortOutput}</Text>
         </Box>
       )}
+
+      {subTasks?.map((task, index) => (
+        <Box key={index} marginLeft={2}>
+          <TaskListEntry {...task} />
+        </Box>
+      ))}
     </Box>
   );
 }

@@ -1,8 +1,8 @@
 import multimatch from 'multimatch';
-import quotedStringSpaceSplit from 'quoted-string-space-split';
+import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
 import { renderTaskList } from './components/taskList';
 import { Task, task } from './task';
-import { formatTime, loadScripts as loadNpmScripts, whichNpmRunner } from './util';
+import { formatTime, indent, loadScripts as loadNpmScripts, whichNpmRunner } from './util';
 
 export interface RunpCommonOptions {
   /** Maximum number of lines for each command output
@@ -13,6 +13,10 @@ export interface RunpCommonOptions {
    * @default false
    */
   keepOutput?: boolean;
+  /** Task will run forever. It won't display a spinner but a different symbol instead */
+  forever?: boolean;
+  /** If npm scripts call nested npm scripts which also use runp, flatten them into one task list */
+  flattenNpmScripts?: boolean;
 }
 
 export interface RunpCommand extends RunpCommonOptions {
@@ -28,8 +32,7 @@ export interface RunpCommand extends RunpCommonOptions {
    * @default false
    */
   dependsOn?: string | number | Array<string | number>;
-  /** Task will run forever. It won't display a spinner but a different symbol instead */
-  forever?: boolean;
+
   /** Set cwd for command */
   cwd?: string;
 }
@@ -41,9 +44,11 @@ export interface RunpOptions extends RunpCommonOptions {
   commands: (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
 }
 
-const DEFAULT_MAX_LINES = 10;
+export const DEFAULT_OUTPUT_LENGTH = 10;
+export const RUNP_TASK_V = 'v1';
+export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}`;
 
-export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOutput }: RunpOptions) {
+export async function runp(options: RunpOptions) {
   const npmScripts = await loadNpmScripts();
   const npmRunner = await whichNpmRunner();
   let serial = false,
@@ -51,7 +56,7 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
     index = 0,
     deps = new Array<string | number>();
 
-  const resolvedCommands = commands.flatMap<RunpCommand>((command) => {
+  const resolvedCommands = options.commands.flatMap<RunpCommand>((command) => {
     if (!command) {
       return [];
     }
@@ -73,7 +78,7 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
     }
 
     if (typeof command === 'string') {
-      const [cmd = '', ...args] = quotedStringSpaceSplit(command);
+      const [cmd = '', ...args] = splitSpacesExcludeQuotes(command);
       command = { cmd, args };
     }
 
@@ -86,7 +91,10 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
       args: command.args?.filter((x): x is string => typeof x === 'string'),
       id: command.id ?? index,
       dependsOn: command.dependsOn ?? [...deps],
-      forever: command.forever ?? forever,
+      outputLength: command.outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
+      keepOutput: command.keepOutput ?? options.keepOutput,
+      forever: command.forever ?? forever ?? options.forever,
+      flattenNpmScripts: command.flattenNpmScripts ?? options.flattenNpmScripts ?? true,
     };
 
     index++;
@@ -107,16 +115,12 @@ export async function runp({ commands, outputLength = DEFAULT_MAX_LINES, keepOut
     return cleanCommand;
   });
 
-  const tasks: Task[] = resolvedCommands.map((cmd) =>
-    task(
-      {
-        ...cmd,
-        outputLength: cmd.outputLength ?? outputLength,
-        keepOutput: cmd.keepOutput ?? keepOutput,
-      },
-      () => tasks,
-    ),
-  );
+  if (process.env.RUNP_TTY === RUNP_TASK_V) {
+    console.log(`${RUNP_TASK_DELEGATE}${JSON.stringify(resolvedCommands)}`);
+    process.exit();
+  }
+
+  const tasks: Task[] = resolvedCommands.map((cmd) => task(cmd, () => tasks));
 
   if (process.stdout.isTTY) {
     renderTTY(tasks);
@@ -137,13 +141,22 @@ function renderTTY(tasks: ReturnType<typeof task>[]) {
 }
 
 async function renderNonTTY(tasks: ReturnType<typeof task>[]) {
-  for (const { name, result, state } of tasks) {
+  for (const {
+    command: { keepOutput },
+    name,
+    result,
+    state,
+  } of tasks) {
     try {
       await result;
       console.log(`✔ ${name} [${formatTime(state.getState().time ?? 0)}]\n`);
+
+      if (keepOutput) {
+        console.log(indent(state.getState().output));
+      }
     } catch (e: any) {
       console.log(`✖ ${name} [${formatTime(state.getState().time ?? 0)}]`);
-      console.log(e);
+      console.log(indent(e.toString()));
     }
   }
 }

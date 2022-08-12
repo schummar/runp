@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { Store } from 'schummar-state/react';
-import { RunpCommand } from '.';
+import { RunpCommand, RUNP_TASK_DELEGATE, RUNP_TASK_V } from '.';
 import { abbrev, renderOutput } from './util';
 
 export interface Task {
@@ -15,6 +15,7 @@ export interface TaskState {
   output: string;
   shortOutput: string;
   time?: number;
+  subTasks?: Task[];
 }
 
 export function task(command: RunpCommand, allTasks: () => Task[]): Task {
@@ -63,18 +64,29 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       state.status = 'inProgress';
     });
 
+    const isTTY = process.stdout.isTTY || process.env.RUNP_TTY;
+
     const subProcess = spawn(cmd, args, {
       stdio: 'pipe',
       cwd,
       env: {
         ...process.env,
-        FORCE_COLOR: process.stdout.isTTY ? '1' : undefined, // Some libs color output when this env var is set
+        FORCE_COLOR: isTTY ? '1' : undefined, // Some libs color output when this env var is set
+        RUNP_TTY: isTTY ? RUNP_TASK_V : undefined, // Some libs color output when this env var is set
       },
     });
 
     const append = (data: any) => {
+      const asString = data.toString() as string;
+
       state.update((state) => {
-        state.output += data.toString();
+        if (asString.startsWith(RUNP_TASK_DELEGATE)) {
+          const commands = JSON.parse(asString.slice(RUNP_TASK_DELEGATE.length)) as RunpCommand[];
+          const tasks: Task[] = commands.map((command) => task(command, () => tasks));
+          state.subTasks = tasks;
+        } else {
+          state.output += data.toString();
+        }
       });
       updateShortOutput();
     };
@@ -87,16 +99,24 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       });
     process.stdout.on('resize', updateShortOutput);
 
-    subProcess.on('close', (code) =>
+    subProcess.on('close', async (code) => {
+      const { subTasks } = state.getState();
+      let hasErrors = !!code;
+
+      if (subTasks) {
+        const errors = await Promise.all(subTasks.map((task) => task.result.catch(() => true)));
+        hasErrors = errors.some(Boolean);
+      }
+
       state.update((state) => {
-        state.status = code ? 'error' : 'done';
+        state.status = hasErrors ? 'error' : 'done';
         state.time = performance.now() - start;
 
-        if (code) {
+        if (hasErrors) {
           state.shortOutput = renderOutput(fullCmd, state.output);
         }
-      }),
-    );
+      });
+    });
 
     subProcess.on('error', (e) =>
       state.update((state) => {
