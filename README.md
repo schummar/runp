@@ -1,3 +1,111 @@
-# runp
+# runp - parallel task execution that looks nices
 
-...
+[![](https://badgen.net/npm/v/@schummar/runp)](https://www.npmjs.com/package/@schummar/runp)
+![](https://badgen.net/github/license/schummar/runp)
+![](https://badgen.net/npm/types/@schummar/runp)
+
+![](docs/img/demo1.gif)
+
+# Getting started
+
+## Install
+
+```bash
+npm install -g @schummar/runp
+```
+
+## Exectute commands
+
+```bash
+runp clean :p "build:*" :s "rm -rf .cache"
+```
+
+Assuming the following `package.json`:
+
+```json
+{
+  "scripts": {
+    "clean": "rimraf dist",
+    "build:esm": "some build command",
+    "build:cjs": "another build command",
+    "build:type": "tsc --emitDeclarationOnly"
+  }
+}
+```
+
+Each parameter can be a program, npm script, a flag or a switch. Arguments for programs and scripts can be added by encapsulating them in quotes.
+
+- `clean` executes `npm run clean`
+
+- `:p` for "parallel": remaining commands will be executed after the previous and in parallel
+
+- `"build:*"` executes all script matching this glob (see [minimatch](https://github.com/isaacs/minimatch))  
+  Mind the quotes, otherwise your shell will try to resolve the wildcard!
+
+- `:s` for "serial": remaining commands will be exeecute after the previius and in series
+
+- `"rm -rf .cache"` deletes the .cache folder
+
+# Options
+
+```
+❯ runp --help
+runp v1.5.0
+
+Usage:
+  runp [flags...] <commands...>
+
+Flags:
+  -f, --forever                       Task will run forever. It won't display a spinner but a different symbol instead
+  -h, --help                          Show help
+  -k, --keep-output                   Keep output of successful commands visible
+  -n, --output-length <number>        Maximum number of lines for each command output (default: 10)
+      --version                       Show version
+```
+
+Options can either be used as flags (pefix "-") or switches (prefix ":"). Flags generally apply to all commands while switches can be used to change behavior midway for the remaining commands.
+
+## Option: Forever
+
+**Flags** `-f`, `--forever` apply to all commands
+
+**Switches** `:f`, `:f=false` apply for all remaining commands
+
+You might run commands in parallel that are supposed to run indefinitely, like a backend server and a frontend dev server. In this case instead of a spinner, `runp` can display an arrow icons instead. The effect is purely cosmetic:
+
+![](docs/img/demo2.gif)
+
+## Option: Keep output
+
+**Flag** `-k`, `--keep-output` apply to all commands
+
+**Switches** `:k`, `:k=false` apply to remaining commands
+
+Usually a command's output will disappear after is has succesfully executed. When `--keep-output` is set, it will remain visible.
+
+## Option: Output length
+
+**Flags** `-n <number>`, `--output-length <number>` apply to all commands
+
+**Switches** `:n=<number>` apply to remaining commands
+
+Defines how many lines of output will be visible at maximum for each command.
+
+## Option: Parallel and serial execution
+
+**Switches** `:p`, `:s` apply to remaining commands
+
+Commands after the `:p` switch will first wait for all commands before the switch to finish, then execute in parallel.
+
+Commands after the `:s` switch will first wait for all commands before the switch to finish, then execute in series.
+
+Both apply to all commands until another `:p` or `:s` appears.
+
+It's possible to have multiple `:p` switches in succession, forming multiple parallel blocks.
+For example `runp :p task1 task2 :p task3 task4` will execute first task1 and task2 in parallel, then task3 and task4 in parallel.
+
+Before the first `:p` or `:s` switch appears, all commands will be exuted in parallel by default.
+
+## Combining switches
+
+Flags and switches can be combined. E.g. `-fk` or `:pfn=10k=false`
