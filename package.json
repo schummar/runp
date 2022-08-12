@@ -4,8 +4,7 @@
   "description": "Run multiple tasks in parallel while keeping their output nicely separated",
   "main": "dist/index.js",
   "bin": {
-    "runp": "cli.js",
-    "runp-live": "cli-live.js"
+    "runp": "cli.js"
   },
   "types": "dist/index.d.ts",
   "repository": "schummar/runp",
@@ -15,12 +14,12 @@
   },
   "scripts": {
     "lint": "eslint --cache --cache-location=node_modules/.cache/eslint/.eslintcache --cache-strategy=content --max-warnings=0 src",
-    "build": "runp-live -k build:clean :p build:compile:*",
+    "build": "tsx src/cli.ts build:clean :p build:compile:*",
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:index": "NODE_ENV=production esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --sourcemap --external:ink --external:react",
     "build:compile:cli": "esbuild --bundle --platform=node src/cli.ts --outfile=dist/cli.js --sourcemap --external:.",
     "build:compile:types": "tsc",
-    "prepublishOnly": "runp-live :s lint build"
+    "prepublishOnly": "tsx src/cli.ts :s lint build"
   },
   "keywords": [],
   "license": "MIT",
