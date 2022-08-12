@@ -33,12 +33,6 @@ const argv = cli({
       description: `Task will run forever. It won't display a spinner but a different symbol instead`,
       default: false,
     },
-    flattenNpmScripts: {
-      alias: 'm',
-      type: Boolean,
-      description: 'If npm scripts call nested npm scripts which also use runp, flatten them into one task list',
-      default: true,
-    },
   },
 
   version: pkg.version,

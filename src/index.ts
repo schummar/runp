@@ -15,8 +15,6 @@ export interface RunpCommonOptions {
   keepOutput?: boolean;
   /** Task will run forever. It won't display a spinner but a different symbol instead */
   forever?: boolean;
-  /** If npm scripts call nested npm scripts which also use runp, flatten them into one task list */
-  flattenNpmScripts?: boolean;
 }
 
 export interface RunpCommand extends RunpCommonOptions {
@@ -94,7 +92,6 @@ export async function runp(options: RunpOptions) {
       outputLength: command.outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
       keepOutput: command.keepOutput ?? options.keepOutput,
       forever: command.forever ?? forever ?? options.forever,
-      flattenNpmScripts: command.flattenNpmScripts ?? options.flattenNpmScripts ?? true,
     };
 
     index++;
