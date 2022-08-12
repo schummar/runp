@@ -1,17 +1,28 @@
 {
   "name": "@schummar/runp",
   "version": "0.0.0-develop",
-  "description": "Run multiple tasks in parallel while keeping their output nicely separated",
-  "main": "dist/index.js",
-  "bin": {
-    "runp": "cli.js"
-  },
-  "types": "dist/index.d.ts",
+  "description": "Neat parallel task execution",
+  "keywords": [
+    "parallel",
+    "task",
+    "job",
+    "command",
+    "execution",
+    "run",
+    "typescript",
+    "nodejs"
+  ],
+  "license": "MIT",
   "repository": "schummar/runp",
   "author": {
     "name": "Marco Schumacher",
     "email": "marco@schumacher.dev"
   },
+  "main": "dist/index.js",
+  "bin": {
+    "runp": "cli.js"
+  },
+  "types": "dist/index.d.ts",
   "scripts": {
     "lint": "eslint --cache --cache-location=node_modules/.cache/eslint/.eslintcache --cache-strategy=content --max-warnings=0 src",
     "build": "tsx src/cli.ts build:clean :p build:compile:*",
@@ -21,8 +32,6 @@
     "build:compile:types": "tsc",
     "prepublishOnly": "tsx src/cli.ts :s lint build"
   },
-  "keywords": [],
-  "license": "MIT",
   "devDependencies": {
     "@schummar/runp": "link:",
     "@types/node": "^18.6.5",

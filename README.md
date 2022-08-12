@@ -1,4 +1,4 @@
-# runp - neat parallel task execution
+# runp - Neat parallel task execution
 
 [![](https://badgen.net/npm/v/@schummar/runp)](https://www.npmjs.com/package/@schummar/runp)
 ![](https://badgen.net/github/license/schummar/runp)
