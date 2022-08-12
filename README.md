@@ -1,4 +1,4 @@
-# runp - parallel task execution that looks nices
+# runp - neat parallel task execution
 
 [![](https://badgen.net/npm/v/@schummar/runp)](https://www.npmjs.com/package/@schummar/runp)
 ![](https://badgen.net/github/license/schummar/runp)
@@ -24,7 +24,7 @@
 npm i @schummar/runp
 ```
 
-## Exectute commands
+## Execute commands
 
 ```bash
 runp clean :p "build:*" :s "rm -rf .cache"
@@ -52,7 +52,7 @@ Each parameter can be a program, npm script, a flag or a switch. Arguments for p
 - `"build:*"` executes all script matching this glob (see [minimatch](https://github.com/isaacs/minimatch))  
   Mind the quotes, otherwise your shell will try to resolve the wildcard!
 
-- `:s` for "serial": remaining commands will be exeecute after the previius and in series
+- `:s` for "serial": remaining commands will be execute after the previous and in series
 
 - `"rm -rf .cache"` deletes the .cache folder
 
@@ -73,7 +73,7 @@ Flags:
       --version                       Show version
 ```
 
-Options can either be used as flags (pefix "-") or switches (prefix ":"). Flags generally apply to all commands while switches can be used to change behavior midway for the remaining commands.
+Options can either be used as flags (prefix "-") or switches (prefix ":"). Flags generally apply to all commands while switches can be used to change behavior midway for the remaining commands.
 
 ## Option: Forever
 
@@ -91,7 +91,7 @@ You might run commands in parallel that are supposed to run indefinitely, like a
 
 **Switches** `:k`, `:k=false` apply to remaining commands
 
-Usually a command's output will disappear after is has succesfully executed. When `--keep-output` is set, it will remain visible.
+Usually a command's output will disappear after is has successfully executed. When `--keep-output` is set, it will remain visible.
 
 ## Option: Output length
 
@@ -114,7 +114,7 @@ Both apply to all commands until another `:p` or `:s` appears.
 It's possible to have multiple `:p` switches in succession, forming multiple parallel blocks.
 For example `runp :p task1 task2 :p task3 task4` will execute first task1 and task2 in parallel, then task3 and task4 in parallel.
 
-Before the first `:p` or `:s` switch appears, all commands will be exuted in parallel by default.
+Before the first `:p` or `:s` switch appears, all commands will be executed in parallel by default.
 
 ## Combining switches
 
@@ -132,7 +132,7 @@ Any parallel tasks are allowed to continue but dependent commands will not be ex
 When `runp` is executed as child process of another `runp` instance, it delegates its tasks to the parent instance.
 Commands will be shown as child commands to the parent instance's command.
 
-That is useful for exmaple for composing npm scripts.
+That is useful for example for composing npm scripts.
 Say we have the following `package.json`:
 
 ```json
@@ -188,7 +188,7 @@ runp({
 });
 ```
 
-The Node API allows running `runp` programatically with all the same options, plus a bit more fine grained control.
+The Node API allows running `runp` programmatically with all the same options, plus a bit more fine grained control.
 
 ## commands.cmd
 
