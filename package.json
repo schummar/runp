@@ -39,7 +39,7 @@
     "@typescript-eslint/eslint-plugin": "5.35.1",
     "@typescript-eslint/parser": "5.35.1",
     "cleye": "1.2.1",
-    "esbuild": "0.14.54",
+    "esbuild": "0.15.5",
     "eslint": "8.22.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
