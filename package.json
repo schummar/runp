@@ -35,7 +35,7 @@
   "devDependencies": {
     "@schummar/runp": "link:",
     "@types/node": "18.7.13",
-    "@types/react": "18.0.17",
+    "@types/react": "18.0.20",
     "@typescript-eslint/eslint-plugin": "5.35.1",
     "@typescript-eslint/parser": "5.35.1",
     "cleye": "1.2.1",

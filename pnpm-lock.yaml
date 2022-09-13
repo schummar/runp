@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@schummar/runp': 'link:'
   '@types/node': 18.7.13
-  '@types/react': 18.0.17
+  '@types/react': 18.0.20
   '@typescript-eslint/eslint-plugin': 5.35.1
   '@typescript-eslint/parser': 5.35.1
   cleye: 1.2.1
@@ -24,13 +24,13 @@ specifiers:
   typescript: 4.7.4
 
 dependencies:
-  ink: 3.2.0_k33vb7fucsny7mu5lic4ab3hri
+  ink: 3.2.0_rp4jof5zhmzvplda5pykttb2ca
   react: 17.0.2
 
 devDependencies:
   '@schummar/runp': 'link:'
   '@types/node': 18.7.13
-  '@types/react': 18.0.17
+  '@types/react': 18.0.20
   '@typescript-eslint/eslint-plugin': 5.35.1_ktjxjibzrfqejavile4bhmzhjq
   '@typescript-eslint/parser': 5.35.1_4rv7y5c6xz3vfxwhbrcxxi73bq
   cleye: 1.2.1
@@ -43,7 +43,7 @@ devDependencies:
   prettier: 2.7.1
   quoted-string-space-split: 1.1.1
   rimraf: 3.0.2
-  schummar-state: 0.4.3_n2wpmztpzz52huwour7s2m5zam
+  schummar-state: 0.4.3_tv426jqpgqcscupbtydzszbima
   semantic-release: 19.0.5
   tsx: 3.8.2
   typescript: 4.7.4
@@ -420,8 +420,8 @@ packages:
   /@types/prop-types/15.7.5:
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
 
-  /@types/react/18.0.17:
-    resolution: {integrity: sha512-38ETy4tL+rn4uQQi7mB81G7V1g0u2ryquNmsVIOKUAEIDK+3CUjZ6rSRpdvS99dNBnkLFL83qfmtLacGOTIhwQ==}
+  /@types/react/18.0.20:
+    resolution: {integrity: sha512-MWul1teSPxujEHVwZl4a5HxQ9vVNsjTchVA+xRqv/VYGCuKGAU6UhfrTdF5aBefwD1BHUD8i/zq+O/vyCm/FrA==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -1993,7 +1993,7 @@ packages:
     resolution: {integrity: sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==}
     dev: true
 
-  /ink/3.2.0_k33vb7fucsny7mu5lic4ab3hri:
+  /ink/3.2.0_rp4jof5zhmzvplda5pykttb2ca:
     resolution: {integrity: sha512-firNp1q3xxTzoItj/eOOSZQnYSlyrWks5llCTVX37nJ59K3eXbQ8PtzCguqo8YI19EELo5QxaKnJd4VxzhU8tg==}
     engines: {node: '>=10'}
     peerDependencies:
@@ -2003,7 +2003,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.0.17
+      '@types/react': 18.0.20
       ansi-escapes: 4.3.2
       auto-bind: 4.0.0
       chalk: 4.1.2
@@ -2952,7 +2952,7 @@ packages:
       object-assign: 4.1.1
     dev: false
 
-  /schummar-state/0.4.3_n2wpmztpzz52huwour7s2m5zam:
+  /schummar-state/0.4.3_tv426jqpgqcscupbtydzszbima:
     resolution: {integrity: sha512-Qe6gyEe7GxJujHbg4WVYSTmZt3oksSLGw5oq8WGtWLh5VEdheA+pVFO0LWg6qvalcA8DZ08VmzROdxFf02sw/A==}
     peerDependencies:
       '@types/react': '>=16.0.8'
@@ -2964,7 +2964,7 @@ packages:
       react:
         optional: true
     dependencies:
-      '@types/react': 18.0.17
+      '@types/react': 18.0.20
       fast-equals: 4.0.1
       immer: 9.0.15
       react: 17.0.2
