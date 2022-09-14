@@ -1,53 +1,54 @@
-import { Box, Text } from 'ink';
+import { Paragraph, Text } from '@schummar/react-terminal';
 import { useStoreState } from 'schummar-state/react';
+import { statusIcons } from '../statusIcons';
 import { Task } from '../task';
 import { Spinner } from './spinner';
 
-export function TaskListEntry({ command: { keepOutput, forever }, name, state }: Task) {
+export function TaskListEntry({ command: { keepOutput, forever, outputLength }, name, state }: Task) {
   const status = useStoreState(state, (x) => x.status);
   const time = useStoreState(state, (x) => x.time);
-  const shortOutput = useStoreState(state, (x) => x.shortOutput);
+  const output = useStoreState(state, (x) => x.output.trim());
   const subTasks = useStoreState(state, (x) => x.subTasks);
 
+  const showOutput = (status === 'error' || status === 'inProgress' || keepOutput) && output.length > 0;
+
   return (
-    <Box flexDirection="column">
-      <Box>
-        <Box>
-          {status === 'pending' ? (
-            <Text>↳</Text>
-          ) : status === 'inProgress' && forever ? (
-            <Text color="green">▶</Text>
-          ) : status === 'inProgress' ? (
-            <Spinner color="yellow" />
-          ) : status === 'done' ? (
-            <Text color="green">✔</Text>
-          ) : (
-            <Text color="red">✖</Text>
-          )}
-        </Box>
+    <Paragraph>
+      {status === 'pending' ? (
+        <Text>{statusIcons.pending}</Text>
+      ) : status === 'inProgress' && forever ? (
+        <Text color="green">{statusIcons.forever}</Text>
+      ) : status === 'inProgress' ? (
+        <Spinner color="yellow" />
+      ) : status === 'done' ? (
+        <Text color="green">{statusIcons.done}</Text>
+      ) : (
+        <Text color="red">{statusIcons.error}</Text>
+      )}
+      <Text>&nbsp;</Text>
 
-        <Box marginLeft={1}>
-          <Text>{name}</Text>
-        </Box>
+      <Text bold shrink ellipsis>
+        {name}
+      </Text>
 
-        {time !== undefined && (
-          <Box marginLeft={1}>
-            <Text color="gray">[{(time / 1000).toFixed(3)}s]</Text>
-          </Box>
-        )}
-      </Box>
+      {time !== undefined && (
+        <>
+          <Text>&nbsp;</Text>
+          <Text dim>{time !== undefined && `[${(time / 1000).toFixed(3)}s]`}</Text>
+        </>
+      )}
 
-      {(status === 'error' || status === 'inProgress' || keepOutput) && shortOutput.length > 0 && (
-        <Box marginLeft={2} paddingX={2} paddingY={1}>
-          <Text>{shortOutput}</Text>
-        </Box>
+      {showOutput && (
+        <Paragraph margin={[1, 0, 1, 2]} maxLines={outputLength}>
+          {output}
+        </Paragraph>
       )}
 
       {subTasks?.map((task, index) => (
-        <Box key={index} marginLeft={2}>
+        <Paragraph key={index} margin={[0, 0, 0, 2]}>
           <TaskListEntry {...task} />
-        </Box>
+        </Paragraph>
       ))}
-    </Box>
+    </Paragraph>
   );
 }

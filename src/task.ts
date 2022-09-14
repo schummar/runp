@@ -1,7 +1,6 @@
 import { spawn } from 'child_process';
 import { Store } from 'schummar-state/react';
 import { RunpCommand, RUNP_TASK_DELEGATE, RUNP_TASK_V } from '.';
-import { abbrev, renderOutput } from './util';
 
 export interface Task {
   command: RunpCommand;
@@ -13,18 +12,16 @@ export interface Task {
 export interface TaskState {
   status: 'pending' | 'inProgress' | 'done' | 'error';
   output: string;
-  shortOutput: string;
   time?: number;
   subTasks?: Task[];
 }
 
 export function task(command: RunpCommand, allTasks: () => Task[]): Task {
-  const { name, cmd, args = [], cwd, outputLength, dependsOn } = command;
+  const { name, cmd, args = [], cwd, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
   const state = new Store<TaskState>({
     status: 'pending',
     output: '',
-    shortOutput: '',
   });
 
   const result = new Promise<void>((resolve, reject) => {
@@ -35,7 +32,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
           resolve();
           setTimeout(() => cancel());
         } else if (status === 'error') {
-          reject(state.getState().shortOutput);
+          reject(state.getState().output);
           setTimeout(() => cancel());
         }
       },
@@ -72,7 +69,8 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       env: {
         ...process.env,
         FORCE_COLOR: isTTY ? '1' : undefined, // Some libs color output when this env var is set
-        RUNP_TTY: isTTY ? RUNP_TASK_V : undefined, // Some libs color output when this env var is set
+        RUNP: RUNP_TASK_V, // Tell child processes, especially runp itself, that they are running in runp
+        RUNP_TTY: isTTY ? '1' : undefined, // Runp child processes can print as if they were running in a tty
       },
     });
 
@@ -88,16 +86,9 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
           state.output += data.toString();
         }
       });
-      updateShortOutput();
     };
     subProcess.stdout.on('data', append);
     subProcess.stderr.on('data', append);
-
-    const updateShortOutput = () =>
-      state.update((state) => {
-        state.shortOutput = renderOutput(fullCmd, state.output, outputLength);
-      });
-    process.stdout.on('resize', updateShortOutput);
 
     subProcess.on('close', async (code) => {
       const { subTasks } = state.getState();
@@ -111,10 +102,6 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       state.update((state) => {
         state.status = hasErrors ? 'error' : 'done';
         state.time = performance.now() - start;
-
-        if (hasErrors) {
-          state.shortOutput = renderOutput(fullCmd, state.output);
-        }
       });
     });
 
@@ -127,7 +114,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
 
   return {
     command,
-    name: (name ?? abbrev(fullCmd)) + (cwd ? ` (${cwd})` : ''),
+    name: (name ?? fullCmd) + (cwd ? ` (${cwd})` : ''),
     state,
     result,
   };

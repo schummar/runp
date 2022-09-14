@@ -10,9 +10,7 @@ const pkg = JSON.parse(pkgJson);
 const argv = cli({
   name: 'runp',
 
-  parameters: [
-    '<commands...>', // First name is required
-  ],
+  parameters: ['<commands...>'],
 
   flags: {
     outputLength: {

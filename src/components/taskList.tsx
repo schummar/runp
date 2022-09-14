@@ -1,14 +1,14 @@
-import { Box, render } from 'ink';
 import { Task } from '../task';
 import { TaskListEntry } from './taskListEntry';
+import { render, Paragraph } from '@schummar/react-terminal';
 
 export function TaskList({ tasks }: { tasks: Task[] }) {
   return (
-    <Box flexDirection="column">
+    <Paragraph>
       {tasks.map((task, index) => (
         <TaskListEntry key={index} {...task} />
       ))}
-    </Box>
+    </Paragraph>
   );
 }
 

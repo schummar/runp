@@ -1,4 +1,4 @@
-import { Text, TextProps } from 'ink';
+import { Text, TextProps } from '@schummar/react-terminal';
 import { useEffect, useState } from 'react';
 
 const frames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];

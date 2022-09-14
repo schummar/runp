@@ -1,38 +1,5 @@
 import { readFile, stat } from 'fs/promises';
 
-export function renderOutput(cmd: string, lines: string, outputLength = Infinity) {
-  const cols = process.stdout.columns - 8;
-
-  const last = lines
-    .trim()
-    .split('\n')
-    .slice(-outputLength)
-    .flatMap((line) => {
-      const chunks: string[] = [];
-
-      while (line.length > cols) {
-        chunks.push(line.slice(0, cols));
-        line = `  ${line.slice(cols)}`;
-      }
-
-      chunks.push(line);
-
-      return chunks;
-    });
-
-  return `${last.slice(-outputLength).join('\n')}`.trim();
-}
-
-export function abbrev(s: string) {
-  const cols = process.stdout.columns - 20;
-
-  if (s.length > cols) {
-    return s.slice(0, cols - 3).concat('...');
-  }
-
-  return s;
-}
-
 export function formatTime(ms: number) {
   return `${(ms / 1000).toFixed(3)}s`;
 }
@@ -72,6 +39,9 @@ export async function whichNpmRunner() {
   return 'npm';
 }
 
-export function indent(s: string) {
-  return s.replace(/\n([^\n])/g, '\n    $1');
+export function indent(s: string, margin: number) {
+  return s
+    .split('\n')
+    .map((line) => (line.length > 0 ? ''.padEnd(margin * 4, ' ') + line : line))
+    .join('\n');
 }

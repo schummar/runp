@@ -1,6 +1,7 @@
 import multimatch from 'multimatch';
 import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
 import { renderTaskList } from './components/taskList';
+import { statusIcons } from './statusIcons';
 import { Task, task } from './task';
 import { formatTime, indent, loadScripts as loadNpmScripts, whichNpmRunner } from './util';
 
@@ -111,15 +112,16 @@ export async function runp(options: RunpOptions) {
     if (matchingNpmScripts.length > 0) {
       return matchingNpmScripts.map((script) => ({
         ...cleanCommand,
+        name: script,
         cmd: npmRunner,
-        args: ['run', script].concat(cleanCommand.args?.length ? ['--', ...cleanCommand.args] : []),
+        args: ['run', '--silent', script].concat(cleanCommand.args?.length ? ['--', ...cleanCommand.args] : []),
       }));
     }
 
     return cleanCommand;
   });
 
-  if (process.env.RUNP_TTY === RUNP_TASK_V) {
+  if (process.env.RUNP === RUNP_TASK_V) {
     console.log(`${RUNP_TASK_DELEGATE}${JSON.stringify(resolvedCommands)}`);
     process.exit();
   }
@@ -144,23 +146,26 @@ function renderTTY(tasks: ReturnType<typeof task>[]) {
   renderTaskList(tasks);
 }
 
-async function renderNonTTY(tasks: ReturnType<typeof task>[]) {
+async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
   for (const {
     command: { keepOutput },
     name,
     result,
     state,
   } of tasks) {
-    try {
-      await result;
-      console.log(`✔ ${name} [${formatTime(state.getState().time ?? 0)}]\n`);
+    await result.catch(() => undefined);
+    const { status, subTasks } = state.getState();
+    const output = state.getState().output.trim();
+    const showOutput = (status === 'error' || keepOutput) && output.length > 0;
 
-      if (keepOutput) {
-        console.log(indent(state.getState().output));
-      }
-    } catch (e: any) {
-      console.log(`✖ ${name} [${formatTime(state.getState().time ?? 0)}]`);
-      console.log(indent(e.toString()));
+    console.log(indent(`${statusIcons[status]} ${name} [${formatTime(state.getState().time ?? 0)}]`, margin));
+
+    if (showOutput) {
+      console.log(indent(`\n${output}\n`, margin + 1));
+    }
+
+    if (subTasks) {
+      renderNonTTY(subTasks, margin + 1);
     }
   }
 }
