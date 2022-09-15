@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@schummar/react-terminal': 1.0.4
+  '@schummar/react-terminal': 1.0.5
   '@types/node': 18.7.18
   '@types/react': 18.0.20
   '@types/react-reconciler': 0.28.0
@@ -25,7 +25,7 @@ specifiers:
   typescript: 4.8.3
 
 devDependencies:
-  '@schummar/react-terminal': 1.0.4_2y3tjw35eqirdov3hrnkvluzmu
+  '@schummar/react-terminal': 1.0.5_2y3tjw35eqirdov3hrnkvluzmu
   '@types/node': 18.7.18
   '@types/react': 18.0.20
   '@types/react-reconciler': 0.28.0
@@ -295,8 +295,8 @@ packages:
       '@octokit/openapi-types': 12.11.0
     dev: true
 
-  /@schummar/react-terminal/1.0.4_2y3tjw35eqirdov3hrnkvluzmu:
-    resolution: {integrity: sha512-4TRXfzGm84QTptFS661tPywzdoO0AlBsSuqQuWLPkDYsNY1GW54wT2id9WBnwOQOYhvoOTy3IDHDYzhK3ZT/Iw==}
+  /@schummar/react-terminal/1.0.5_2y3tjw35eqirdov3hrnkvluzmu:
+    resolution: {integrity: sha512-qo4L5xlWmhCrZWEjL1nzzM7BTw01Yfp8pFNG5vFXl7ZK8gUTQiFDoCMr5anoS+JkfwsYvAbHRerR63sQr+0FIA==}
     peerDependencies:
       '@types/react': ^18.0.20
       '@types/react-reconciler': ^0.28.0
