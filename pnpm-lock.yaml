@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@schummar/react-terminal': 1.1.3
   '@types/node': 18.7.18
-  '@types/react': 18.0.20
+  '@types/react': 18.0.21
   '@types/react-reconciler': 0.28.0
   '@typescript-eslint/eslint-plugin': 5.38.0
   '@typescript-eslint/parser': 5.38.0
@@ -27,9 +27,9 @@ specifiers:
   xterm-headless: 5.0.0
 
 devDependencies:
-  '@schummar/react-terminal': 1.1.3_2y3tjw35eqirdov3hrnkvluzmu
+  '@schummar/react-terminal': 1.1.3_f4ardzmhjvadmlw5xvhwche6be
   '@types/node': 18.7.18
-  '@types/react': 18.0.20
+  '@types/react': 18.0.21
   '@types/react-reconciler': 0.28.0
   '@typescript-eslint/eslint-plugin': 5.38.0_wsb62dxj2oqwgas4kadjymcmry
   '@typescript-eslint/parser': 5.38.0_irgkl5vooow2ydyo6aokmferha
@@ -46,7 +46,7 @@ devDependencies:
   react: 18.2.0
   react-reconciler: 0.29.0_react@18.2.0
   rimraf: 3.0.2
-  schummar-state: 0.4.3_kjgquv2hxnyg5s6yza5pxvui7a
+  schummar-state: 0.4.3_onfyokawl4rvblsrkytenaawtu
   semantic-release: 19.0.5
   tsx: 3.9.0
   typescript: 4.8.3
@@ -310,7 +310,7 @@ packages:
       '@octokit/openapi-types': 12.11.0
     dev: true
 
-  /@schummar/react-terminal/1.1.3_2y3tjw35eqirdov3hrnkvluzmu:
+  /@schummar/react-terminal/1.1.3_f4ardzmhjvadmlw5xvhwche6be:
     resolution: {integrity: sha512-1M3CXag5C9fhFOS9/9h57zhVhW8uUKzoKDx6YlBEC5D2V9klIwwxBJnuMGaWof7we13sZQiEiDtcU2Wv02nFAg==}
     peerDependencies:
       '@types/react': ^18.0.20
@@ -323,7 +323,7 @@ packages:
       '@types/react-reconciler':
         optional: true
     dependencies:
-      '@types/react': 18.0.20
+      '@types/react': 18.0.21
       '@types/react-reconciler': 0.28.0
       chalk: 5.0.1
       react: 18.2.0
@@ -464,11 +464,11 @@ packages:
   /@types/react-reconciler/0.28.0:
     resolution: {integrity: sha512-5cjk9ottZAj7eaTsqzPUIlrVbh3hBAO2YaEL1rkjHKB3xNAId7oU8GhzvAX+gfmlfoxTwJnBjPxEHyxkEA1Ffg==}
     dependencies:
-      '@types/react': 18.0.20
+      '@types/react': 18.0.21
     dev: true
 
-  /@types/react/18.0.20:
-    resolution: {integrity: sha512-MWul1teSPxujEHVwZl4a5HxQ9vVNsjTchVA+xRqv/VYGCuKGAU6UhfrTdF5aBefwD1BHUD8i/zq+O/vyCm/FrA==}
+  /@types/react/18.0.21:
+    resolution: {integrity: sha512-7QUCOxvFgnD5Jk8ZKlUAhVcRj7GuJRjnjjiY/IUBWKgOlnvDvTMLD4RTF7NPyVmbRhNrbomZiOepg7M/2Kj1mA==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.2
@@ -2900,7 +2900,7 @@ packages:
       loose-envify: 1.4.0
     dev: true
 
-  /schummar-state/0.4.3_kjgquv2hxnyg5s6yza5pxvui7a:
+  /schummar-state/0.4.3_onfyokawl4rvblsrkytenaawtu:
     resolution: {integrity: sha512-Qe6gyEe7GxJujHbg4WVYSTmZt3oksSLGw5oq8WGtWLh5VEdheA+pVFO0LWg6qvalcA8DZ08VmzROdxFf02sw/A==}
     peerDependencies:
       '@types/react': '>=16.0.8'
@@ -2912,7 +2912,7 @@ packages:
       react:
         optional: true
     dependencies:
-      '@types/react': 18.0.20
+      '@types/react': 18.0.21
       fast-equals: 4.0.1
       immer: 9.0.15
       react: 18.2.0
