@@ -20,7 +20,7 @@ specifiers:
   react: 18.2.0
   react-reconciler: 0.29.0
   rimraf: 3.0.2
-  schummar-state: 0.4.3
+  schummar-state: 0.4.4
   semantic-release: 19.0.5
   tsx: 3.9.0
   typescript: 4.8.3
@@ -46,7 +46,7 @@ devDependencies:
   react: 18.2.0
   react-reconciler: 0.29.0_react@18.2.0
   rimraf: 3.0.2
-  schummar-state: 0.4.3_kjgquv2hxnyg5s6yza5pxvui7a
+  schummar-state: 0.4.4_kjgquv2hxnyg5s6yza5pxvui7a
   semantic-release: 19.0.5
   tsx: 3.9.0
   typescript: 4.8.3
@@ -2900,8 +2900,8 @@ packages:
       loose-envify: 1.4.0
     dev: true
 
-  /schummar-state/0.4.3_kjgquv2hxnyg5s6yza5pxvui7a:
-    resolution: {integrity: sha512-Qe6gyEe7GxJujHbg4WVYSTmZt3oksSLGw5oq8WGtWLh5VEdheA+pVFO0LWg6qvalcA8DZ08VmzROdxFf02sw/A==}
+  /schummar-state/0.4.4_kjgquv2hxnyg5s6yza5pxvui7a:
+    resolution: {integrity: sha512-VfpcAd11n86nQZBTM8z0rwWRc7ZdfJxK9VHVU6GCTqaQ6loM/9ETOEH+XLS1n89ck7hG0omZkWOSMcxgp5AY/w==}
     peerDependencies:
       '@types/react': '>=16.0.8'
       immer: ^9.0.1
