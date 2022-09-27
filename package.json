@@ -42,7 +42,7 @@
     "@typescript-eslint/parser": "5.38.0",
     "cleye": "1.2.1",
     "esbuild": "0.15.8",
-    "eslint": "8.23.1",
+    "eslint": "8.24.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
     "immer": "9.0.15",
