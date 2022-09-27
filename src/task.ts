@@ -6,7 +6,7 @@ export interface Task {
   command: RunpCommand;
   name: string;
   state: Store<TaskState>;
-  result: Promise<void>;
+  result: Promise<string>;
 }
 
 export interface TaskState {
@@ -24,12 +24,12 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
     output: '',
   });
 
-  const result = new Promise<void>((resolve, reject) => {
+  const result = new Promise<string>((resolve, reject) => {
     const cancel = state.subscribe(
       (x) => x.status,
       (status) => {
         if (status === 'done') {
-          resolve();
+          resolve(state.getState().output);
           setTimeout(() => cancel());
         } else if (status === 'error') {
           reject(state.getState().output);

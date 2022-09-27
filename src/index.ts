@@ -134,12 +134,27 @@ export async function runp(options: RunpOptions) {
     await renderNonTTY(tasks);
   }
 
-  const errors = await Promise.all(tasks.map((task) => task.result.catch(() => true)));
-  const hasErrors = errors.some(Boolean);
+  const results = await Promise.all(
+    tasks.map((task) =>
+      task.result
+        .then(
+          (output) =>
+            ({
+              result: 'success',
+              output,
+            } as const),
+        )
+        .catch(
+          (output: string) =>
+            ({
+              result: 'error',
+              output,
+            } as const),
+        ),
+    ),
+  );
 
-  setTimeout(() => {
-    process.exit(hasErrors ? 1 : 0);
-  });
+  return results;
 }
 
 function renderTTY(tasks: ReturnType<typeof task>[]) {

@@ -36,9 +36,14 @@ const argv = cli({
   version: pkg.version,
 });
 
-runp({
-  commands: argv._.commands,
-  ...argv.flags,
-}).catch((e) => {
-  console.error(e);
-});
+(async () => {
+  const results = await runp({
+    commands: argv._.commands,
+    ...argv.flags,
+  });
+
+  const hasErrors = results.some(({ result }) => result === 'error');
+  setTimeout(() => {
+    process.exit(hasErrors ? 1 : 0);
+  });
+})();

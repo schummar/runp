@@ -10,7 +10,7 @@ const sleep = (ms: number) =>
 
 test('cli', async () => {
   const cols = 25,
-    rows = 18;
+    rows = 22;
 
   const terminal = new Terminal({
     cols,
@@ -24,10 +24,11 @@ test('cli', async () => {
       //
       'src/cli.ts',
       '-k',
+      '-n=2',
       'echo short',
       'echo something very very very long',
-      'sh -c "echo last && sleep 1"',
-      'sh -c "echo some error && false"',
+      './test/succeedingScript.sh',
+      './test/failingScript.sh',
     ],
     {
       name: 'foo',
@@ -78,13 +79,17 @@ test('cli', async () => {
     '  something very very    ',
     '  very long              ',
     '                         ',
-    '⠋ sh -c echo last && s...',
+    '⠋ ./test/succeedingScr...',
     '                         ',
-    '  last                   ',
+    '  line2                  ',
+    '  line3                  ',
     '                         ',
-    '✖ sh -c echo ... [#.###s]',
+    '⠋ ./test/failingScript.sh',
     '                         ',
-    '  some error             ',
+    '  line2                  ',
+    '  line3                  ',
+    '                         ',
+    '                         ',
     '                         ',
     '                         ',
   ]);
@@ -103,13 +108,17 @@ test('cli', async () => {
     '  something very very    ',
     '  very long              ',
     '                         ',
-    '✔ sh -c echo ... [#.###s]',
+    '✔ ./test/succ... [#.###s]',
     '                         ',
-    '  last                   ',
+    '  line2                  ',
+    '  line3                  ',
     '                         ',
-    '✖ sh -c echo ... [#.###s]',
+    '✖ ./test/fail... [#.###s]',
     '                         ',
-    '  some error             ',
+    '  line1                  ',
+    '  line2                  ',
+    '  line3                  ',
+    '                         ',
     '                         ',
     '                         ',
   ]);
