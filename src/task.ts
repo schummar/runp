@@ -95,7 +95,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       let hasErrors = !!code;
 
       if (subTasks) {
-        const errors = await Promise.all(subTasks.map((task) => task.result.catch(() => true)));
+        const errors = await Promise.all(subTasks.map((task) => task.result.then(() => undefined).catch(() => true)));
         hasErrors = errors.some(Boolean);
       }
 

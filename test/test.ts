@@ -67,7 +67,7 @@ test('cli', async () => {
       );
   };
 
-  await sleep(500);
+  await sleep(2500);
 
   assert.deepStrictEqual(getBuffer(), [
     '✔ echo short [#.###s]    ',
