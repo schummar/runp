@@ -1,6 +1,7 @@
+import { RenderOptions } from '@schummar/react-terminal';
 import multimatch from 'multimatch';
 import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
-import { renderTaskList } from './components/taskList';
+import { renderTaskList } from './components/renderTaskList';
 import { statusIcons } from './statusIcons';
 import { Task, task } from './task';
 import { formatTime, indent, loadScripts as loadNpmScripts, whichNpmRunner } from './util';
@@ -40,6 +41,7 @@ export type RunpCommandRaw = Omit<RunpCommand, 'args'> & { args?: (string | fals
 export interface RunpOptions extends RunpCommonOptions {
   /** A list of command to execute in parallel */
   commands: (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
+  target?: RenderOptions['target'];
 }
 
 export const DEFAULT_OUTPUT_LENGTH = 10;
@@ -128,8 +130,9 @@ export async function runp(options: RunpOptions) {
 
   const tasks: Task[] = resolvedCommands.map((cmd) => task(cmd, () => tasks));
 
-  if (process.stdout.isTTY) {
-    renderTTY(tasks);
+  let stop;
+  if (process.stdout.isTTY || options.target) {
+    stop = renderTTY(tasks, options.target);
   } else {
     await renderNonTTY(tasks);
   }
@@ -154,11 +157,27 @@ export async function runp(options: RunpOptions) {
     ),
   );
 
+  stop?.();
+
   return results;
 }
 
-function renderTTY(tasks: ReturnType<typeof task>[]) {
-  renderTaskList(tasks);
+function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['target']) {
+  const stop = renderTaskList(tasks, { target });
+
+  [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
+    process.on(eventType, () => {
+      stop();
+      process.exit();
+    });
+  });
+
+  process.on('uncaughtException', (e) => {
+    stop();
+    throw e;
+  });
+
+  return stop;
 }
 
 async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {

@@ -1,6 +1,6 @@
+import { Paragraph } from '@schummar/react-terminal';
 import { Task } from '../task';
 import { TaskListEntry } from './taskListEntry';
-import { render, Paragraph } from '@schummar/react-terminal';
 
 export function TaskList({ tasks }: { tasks: Task[] }) {
   return (
@@ -10,8 +10,4 @@ export function TaskList({ tasks }: { tasks: Task[] }) {
       ))}
     </Paragraph>
   );
-}
-
-export function renderTaskList(tasks: Task[]) {
-  render(<TaskList tasks={tasks} />);
 }

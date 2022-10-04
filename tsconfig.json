@@ -18,7 +18,8 @@
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "jsx": "react-jsx",
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "useDefineForClassFields": false
   },
   "include": ["src"]
 }
