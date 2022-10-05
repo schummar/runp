@@ -37,7 +37,13 @@ class TestTerminal implements Target {
   };
 }
 
-describe('runp', () => {
+const poll = async (predicate: () => unknown) => {
+  while (!predicate()) {
+    await setTimeout(10);
+  }
+};
+
+describe.concurrent('runp', () => {
   test('cli', async () => {
     const term = new TestTerminal({ cols: 25, rows: 24 });
     term.write('first line\n');
@@ -49,7 +55,7 @@ describe('runp', () => {
       target: term,
     });
 
-    await setTimeout(2500);
+    await poll(() => term.getBuffer().some((line) => line === '⠋ ./test/failingScript.sh'));
     term.write('additional line\n');
 
     expect(term.getBuffer()).toEqual([
@@ -79,7 +85,7 @@ describe('runp', () => {
       '                         ',
     ]);
 
-    await finished;
+    const result = await finished;
     await setTimeout();
 
     expect(term.getBuffer()).toEqual([
@@ -109,7 +115,7 @@ describe('runp', () => {
       '                         ',
     ]);
 
-    // expect(result).toEqual({ exitCode: 1, signal: 0 });
+    expect(result.some((r) => r.result === 'error')).toBe(true);
   });
 
   test('long script', async () => {
@@ -123,7 +129,7 @@ describe('runp', () => {
       target: term,
     });
 
-    await setTimeout(2500);
+    await poll(() => term.getBuffer().some((line) => line === '  some output (9)        '));
 
     expect(term.getBuffer()).toEqual([
       '                         ',
@@ -133,7 +139,7 @@ describe('runp', () => {
       '                         ',
     ]);
 
-    await finished;
+    const result = await finished;
     await setTimeout();
 
     expect(term.getBuffer(true)).toEqual([
@@ -153,6 +159,6 @@ describe('runp', () => {
       '                         ',
     ]);
 
-    // assert.deepEqual(result, { exitCode: 1, signal: 0 });
+    expect(result.some((r) => r.result === 'error')).toBe(true);
   });
 });

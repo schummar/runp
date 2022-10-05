@@ -6,5 +6,5 @@ for (let i = 0; i < 10; i++) {
   console.log(`some output (${i})`);
 }
 
-await setTimeout(5000);
+await setTimeout(1000);
 process.exit(1);
