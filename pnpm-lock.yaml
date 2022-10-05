@@ -13,6 +13,7 @@ specifiers:
   eslint: 8.24.0
   eslint-config-prettier: 8.5.0
   eslint-plugin-prettier: 4.2.1
+  fast-equals: ^4.0.3
   immer: 9.0.15
   multimatch: 6.0.0
   node-pty: 0.10.1
@@ -42,6 +43,7 @@ devDependencies:
   eslint: 8.24.0
   eslint-config-prettier: 8.5.0_eslint@8.24.0
   eslint-plugin-prettier: 4.2.1_cfn5x6ujhhgzv3423d6k7r2zzm
+  fast-equals: 4.0.3
   immer: 9.0.15
   multimatch: 6.0.0
   node-pty: 0.10.1
@@ -2019,8 +2021,8 @@ packages:
     resolution: {integrity: sha512-xJuoT5+L99XlZ8twedaRf6Ax2TgQVxvgZOYoPKqZufmJib0tL2tegPBOZb1pVNgIhlqDlA0eO0c3wBvQcmzx4w==}
     dev: true
 
-  /fast-equals/4.0.1:
-    resolution: {integrity: sha512-OXqyj3MD0p8Kee16Jz7CbCnXo+5CHKKu4xBh5UhC1NbmMkHn8WScLRy/B2q5UOlWMlNSQJc4mwXW30Lz+JUZJw==}
+  /fast-equals/4.0.3:
+    resolution: {integrity: sha512-G3BSX9cfKttjr+2o1O22tYMLq0DPluZnYtq1rXumE1SpL/F/SLIfHx08WYQoWSIpeMYf8sRbJ8++71+v6Pnxfg==}
     dev: true
 
   /fast-glob/3.2.11:
@@ -3356,7 +3358,7 @@ packages:
         optional: true
     dependencies:
       '@types/react': 18.0.21
-      fast-equals: 4.0.1
+      fast-equals: 4.0.3
       immer: 9.0.15
       react: 18.2.0
     dev: true

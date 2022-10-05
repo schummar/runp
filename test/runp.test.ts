@@ -3,6 +3,7 @@ import { Terminal } from 'xterm-headless';
 import { runp } from '../src';
 import { test, expect, describe } from 'vitest';
 import { RenderOptions } from '@schummar/react-terminal';
+import { deepEqual } from 'fast-equals';
 
 type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 
@@ -55,35 +56,35 @@ describe.concurrent('runp', () => {
       target: term,
     });
 
-    await poll(() => term.getBuffer().some((line) => line === '⠋ ./test/failingScript.sh'));
+    await poll(() =>
+      deepEqual(term.getBuffer(), [
+        'first line               ',
+        '✔ echo short [#.###s]    ',
+        '                         ',
+        '  short                  ',
+        '                         ',
+        '✔ echo someth... [#.###s]',
+        '                         ',
+        '  something very very    ',
+        '  very long              ',
+        '                         ',
+        '⠋ ./test/succeedingScr...',
+        '                         ',
+        '  line2                  ',
+        '  line3                  ',
+        '                         ',
+        '⠋ ./test/failingScript.sh',
+        '                         ',
+        '  line2                  ',
+        '  line3                  ',
+        '                         ',
+        '                         ',
+        '                         ',
+        '                         ',
+        '                         ',
+      ]),
+    );
     term.write('additional line\n');
-
-    expect(term.getBuffer()).toEqual([
-      'first line               ',
-      '✔ echo short [#.###s]    ',
-      '                         ',
-      '  short                  ',
-      '                         ',
-      '✔ echo someth... [#.###s]',
-      '                         ',
-      '  something very very    ',
-      '  very long              ',
-      '                         ',
-      '⠋ ./test/succeedingScr...',
-      '                         ',
-      '  line2                  ',
-      '  line3                  ',
-      '                         ',
-      '⠋ ./test/failingScript.sh',
-      '                         ',
-      '  line2                  ',
-      '  line3                  ',
-      '                         ',
-      '                         ',
-      '                         ',
-      '                         ',
-      '                         ',
-    ]);
 
     const result = await finished;
     await setTimeout();
@@ -129,15 +130,15 @@ describe.concurrent('runp', () => {
       target: term,
     });
 
-    await poll(() => term.getBuffer().some((line) => line === '  some output (9)        '));
-
-    expect(term.getBuffer()).toEqual([
-      '                         ',
-      '  some output (8)        ',
-      '  some output (9)        ',
-      '                         ',
-      '                         ',
-    ]);
+    await poll(() =>
+      deepEqual(term.getBuffer(), [
+        '                         ',
+        '  some output (8)        ',
+        '  some output (9)        ',
+        '                         ',
+        '                         ',
+      ]),
+    );
 
     const result = await finished;
     await setTimeout();
