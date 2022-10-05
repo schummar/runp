@@ -4,6 +4,7 @@ import { runp } from '../src';
 import { test, expect, describe } from 'vitest';
 import { RenderOptions } from '@schummar/react-terminal';
 import { deepEqual } from 'fast-equals';
+import pty from 'node-pty';
 
 type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 
@@ -45,7 +46,120 @@ const poll = async (predicate: () => unknown) => {
 };
 
 describe.concurrent('runp', () => {
-  test('cli', async () => {
+  test.todo('cli', async () => {
+    const term = new TestTerminal({ cols: 25, rows: 24 });
+    term.write('first line\n');
+
+    const p = pty.spawn(
+      'tsx',
+      [
+        //
+        'src/cli.ts',
+        '-k',
+        '-n=2',
+        'echo short',
+        'echo something very very very long',
+        './test/succeedingScript.sh',
+        './test/failingScript.sh',
+      ],
+      {
+        name: 'foo',
+        cols: 25,
+        rows: 24,
+        cwd: process.cwd(),
+        env: {
+          ...process.env,
+          RUNP: '',
+          RUNP_TTY: '',
+        },
+      },
+    );
+
+    term.term.onData((data) => {
+      p.write(data);
+    });
+
+    p.onData((data) => {
+      term.write(data);
+    });
+
+    const result = await new Promise<{ exitCode: number }>((resolve) => {
+      p.onExit(resolve);
+    });
+
+    await expect(result).toEqual({});
+
+    // const finished = runp({
+    //   keepOutput: true,
+    //   outputLength: 2,
+    //   commands: ['echo short', 'echo something very very very long', './test/succeedingScript.sh', './test/failingScript.sh'],
+    //   target: term,
+    // });
+
+    // await poll(() =>
+    //   deepEqual(term.getBuffer(), [
+    //     'first line               ',
+    //     '✔ echo short [#.###s]    ',
+    //     '                         ',
+    //     '  short                  ',
+    //     '                         ',
+    //     '✔ echo someth... [#.###s]',
+    //     '                         ',
+    //     '  something very very    ',
+    //     '  very long              ',
+    //     '                         ',
+    //     '⠋ ./test/succeedingScr...',
+    //     '                         ',
+    //     '  line2                  ',
+    //     '  line3                  ',
+    //     '                         ',
+    //     '⠋ ./test/failingScript.sh',
+    //     '                         ',
+    //     '  line2                  ',
+    //     '  line3                  ',
+    //     '                         ',
+    //     '                         ',
+    //     '                         ',
+    //     '                         ',
+    //     '                         ',
+    //   ]),
+    // );
+    // term.write('additional line\n');
+
+    // const result = await finished;
+    // await setTimeout();
+
+    // expect(term.getBuffer()).toEqual([
+    //   'first line               ',
+    //   '✔ echo short [#.###s]    ',
+    //   '                         ',
+    //   '  short                  ',
+    //   '                         ',
+    //   '✔ echo someth... [#.###s]',
+    //   '                         ',
+    //   '  something very very    ',
+    //   '  very long              ',
+    //   '                         ',
+    //   '✔ ./test/succ... [#.###s]',
+    //   '                         ',
+    //   '  line2                  ',
+    //   '  line3                  ',
+    //   '                         ',
+    //   '✖ ./test/fail... [#.###s]',
+    //   '                         ',
+    //   '  line1                  ',
+    //   '  line2                  ',
+    //   '  line3                  ',
+    //   '                         ',
+    //   'additional line          ',
+    //   '                         ',
+    //   '                         ',
+    // ]);
+
+    // expect(result.some((r) => r.result === 'error')).toBe(true);
+  });
+
+  test('node api', async () => {
     const term = new TestTerminal({ cols: 25, rows: 24 });
     term.write('first line\n');
 
