@@ -49,7 +49,7 @@
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
     "fast-equals": "4.0.3",
-    "immer": "9.0.15",
+    "immer": "9.0.16",
     "multimatch": "6.0.0",
     "node-pty": "0.10.1",
     "prettier": "2.7.1",
