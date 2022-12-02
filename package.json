@@ -45,7 +45,7 @@
     "@vitejs/plugin-react": "2.1.0",
     "cleye": "1.2.1",
     "esbuild": "0.15.10",
-    "eslint": "8.24.0",
+    "eslint": "8.29.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
     "fast-equals": "4.0.3",
