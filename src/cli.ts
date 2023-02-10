@@ -1,7 +1,7 @@
 import { cli } from 'cleye';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { runp } from '.';
+import { resolveCommands, runp } from '.';
 
 const pkgFile = resolve(__dirname, '..', 'package.json');
 const pkgJson = readFileSync(pkgFile, 'utf8');
@@ -31,12 +31,28 @@ const argv = cli({
       description: `Task will run forever. It won't display a spinner but a different symbol instead`,
       default: false,
     },
+    print: {
+      alias: 'p',
+      type: Boolean,
+      description: `Print the commands that would be run`,
+      default: false,
+    },
   },
 
   version: pkg.version,
 });
 
 (async () => {
+  if (argv.flags.print) {
+    const tasks = await resolveCommands({
+      commands: argv._.commands,
+      ...argv.flags,
+    });
+
+    console.log(tasks);
+    process.exit();
+  }
+
   const results = await runp({
     commands: argv._.commands,
     ...argv.flags,

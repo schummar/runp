@@ -39,9 +39,19 @@ class TestTerminal implements Target {
   };
 }
 
-const poll = async (predicate: () => unknown) => {
-  while (!predicate()) {
-    await setTimeout(10);
+const poll = async (assertion: () => void, max = 4000) => {
+  const start = performance.now();
+
+  for (;;) {
+    try {
+      assertion();
+      return;
+    } catch (e) {
+      if (performance.now() - start > max) {
+        throw e;
+      }
+      await setTimeout(10);
+    }
   }
 };
 
@@ -87,76 +97,36 @@ describe.concurrent('runp', () => {
       p.onExit(resolve);
     });
 
-    await expect(result).toEqual({});
+    expect(result).toEqual({});
 
-    // const finished = runp({
-    //   keepOutput: true,
-    //   outputLength: 2,
-    //   commands: ['echo short', 'echo something very very very long', './test/succeedingScript.sh', './test/failingScript.sh'],
-    //   target: term,
-    // });
+    await poll(() => term.getBuffer().length === 24);
 
-    // await poll(() =>
-    //   deepEqual(term.getBuffer(), [
-    //     'first line               ',
-    //     '✔ echo short [#.###s]    ',
-    //     '                         ',
-    //     '  short                  ',
-    //     '                         ',
-    //     '✔ echo someth... [#.###s]',
-    //     '                         ',
-    //     '  something very very    ',
-    //     '  very long              ',
-    //     '                         ',
-    //     '⠋ ./test/succeedingScr...',
-    //     '                         ',
-    //     '  line2                  ',
-    //     '  line3                  ',
-    //     '                         ',
-    //     '⠋ ./test/failingScript.sh',
-    //     '                         ',
-    //     '  line2                  ',
-    //     '  line3                  ',
-    //     '                         ',
-    //     '                         ',
-    //     '                         ',
-    //     '                         ',
-    //     '                         ',
-    //   ]),
-    // );
-    // term.write('additional line\n');
-
-    // const result = await finished;
-    // await setTimeout();
-
-    // expect(term.getBuffer()).toEqual([
-    //   'first line               ',
-    //   '✔ echo short [#.###s]    ',
-    //   '                         ',
-    //   '  short                  ',
-    //   '                         ',
-    //   '✔ echo someth... [#.###s]',
-    //   '                         ',
-    //   '  something very very    ',
-    //   '  very long              ',
-    //   '                         ',
-    //   '✔ ./test/succ... [#.###s]',
-    //   '                         ',
-    //   '  line2                  ',
-    //   '  line3                  ',
-    //   '                         ',
-    //   '✖ ./test/fail... [#.###s]',
-    //   '                         ',
-    //   '  line1                  ',
-    //   '  line2                  ',
-    //   '  line3                  ',
-    //   '                         ',
-    //   'additional line          ',
-    //   '                         ',
-    //   '                         ',
-    // ]);
-
-    // expect(result.some((r) => r.result === 'error')).toBe(true);
+    expect(term.getBuffer()).toStrictEqual([
+      'first line               ',
+      '✔ echo short [#.###s]    ',
+      '                         ',
+      '  short                  ',
+      '                         ',
+      '✔ echo someth... [#.###s]',
+      '                         ',
+      '  something very very    ',
+      '  very long              ',
+      '                         ',
+      '⠋ ./test/succeedingScr...',
+      '                         ',
+      '  line2                  ',
+      '  line3                  ',
+      '                         ',
+      '⠋ ./test/failingScript.sh',
+      '                         ',
+      '  line2                  ',
+      '  line3                  ',
+      '                         ',
+      '                         ',
+      '                         ',
+      '                         ',
+      '                         ',
+    ]);
   });
 
   test('node api', async () => {
@@ -171,7 +141,7 @@ describe.concurrent('runp', () => {
     });
 
     await poll(() =>
-      deepEqual(term.getBuffer(), [
+      expect(term.getBuffer()).toStrictEqual([
         'first line               ',
         '✔ echo short [#.###s]    ',
         '                         ',
@@ -245,7 +215,7 @@ describe.concurrent('runp', () => {
     });
 
     await poll(() =>
-      deepEqual(term.getBuffer(), [
+      expect(term.getBuffer()).toStrictEqual([
         '                         ',
         '  some output (8)        ',
         '  some output (9)        ',
@@ -275,5 +245,33 @@ describe.concurrent('runp', () => {
     ]);
 
     expect(result.some((r) => r.result === 'error')).toBe(true);
+  });
+
+  test('forever mode', async () => {
+    const term = new TestTerminal({ cols: 25, rows: 10 });
+
+    runp({
+      forever: true,
+      commands: [
+        { name: 'task1', cmd: 'sh', args: ['-c', 'echo task1 output && sleep 10'] },
+        { name: 'task2', cmd: 'sh', args: ['-c', 'echo task2 output && sleep 10'] },
+      ],
+      target: term,
+    });
+
+    await poll(() =>
+      expect(term.getBuffer()).toStrictEqual([
+        '▶ task1 ──────────────── ',
+        '                         ',
+        '  task1 output           ',
+        '                         ',
+        '▶ task2 ──────────────── ',
+        '                         ',
+        '  task2 output           ',
+        '                         ',
+        '                         ',
+        '                         ',
+      ]),
+    );
   });
 });

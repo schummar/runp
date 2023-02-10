@@ -1,10 +1,12 @@
 import { RenderOptions } from '@schummar/react-terminal';
 import multimatch from 'multimatch';
+import { resolve } from 'path';
 import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
 import { renderTaskList } from './components/renderTaskList';
+import { loadNpmWorkspaceScripts } from './npmUtils';
 import { statusIcons } from './statusIcons';
 import { Task, task } from './task';
-import { formatTime, indent, loadScripts as loadNpmScripts, whichNpmRunner } from './util';
+import { formatTime, indent } from './util';
 
 export interface RunpCommonOptions {
   /** Maximum number of lines for each command output
@@ -28,6 +30,10 @@ export interface RunpCommand extends RunpCommonOptions {
   cmd: string;
   /** Args to pass into program */
   args?: string[];
+  /** Environment variables to set
+   * @default process.env
+   */
+  env?: Record<string, string>;
   /** Wait with execution until job at that index is done
    * @default false
    */
@@ -51,8 +57,55 @@ export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}`;
 const switchRegexp = /s|p|f(=(true|false))?|k(=(true|false))?|n=\d+/g;
 
 export async function runp(options: RunpOptions) {
-  const npmScripts = await loadNpmScripts();
-  const npmRunner = await whichNpmRunner();
+  const resolvedCommands = await resolveCommands(options);
+
+  if (process.env.RUNP === RUNP_TASK_V) {
+    console.log(
+      `${RUNP_TASK_DELEGATE}${JSON.stringify(
+        resolvedCommands.map((cmd) => ({
+          ...cmd,
+          env: cmd.env ?? process.env,
+        })),
+      )}`,
+    );
+    process.exit();
+  }
+
+  const tasks: Task[] = resolvedCommands.map((cmd) => task(cmd, () => tasks));
+
+  let stop;
+  if (process.stdout.isTTY || options.target) {
+    stop = renderTTY(tasks, options.target);
+  } else {
+    await renderNonTTY(tasks);
+  }
+
+  const results = await Promise.all(
+    tasks.map((task) =>
+      task.result
+        .then(
+          (output) =>
+            ({
+              result: 'success',
+              output,
+            } as const),
+        )
+        .catch(
+          (output: string) =>
+            ({
+              result: 'error',
+              output,
+            } as const),
+        ),
+    ),
+  );
+
+  stop?.();
+
+  return results;
+}
+
+export async function resolveCommands(options: RunpOptions) {
   let serial = false,
     forever = undefined as boolean | undefined,
     keepOutput = undefined as boolean | undefined,
@@ -60,7 +113,7 @@ export async function runp(options: RunpOptions) {
     index = 0,
     deps = new Array<string | number>();
 
-  const resolvedCommands = options.commands.flatMap<RunpCommand>((command) => {
+  const resolvedCommandsPromise = options.commands.map(async (command): Promise<RunpCommand[]> => {
     if (!command) {
       return [];
     }
@@ -97,6 +150,7 @@ export async function runp(options: RunpOptions) {
     const cleanCommand = {
       ...command,
       args: command.args?.filter((x): x is string => typeof x === 'string'),
+      cwd: resolve(command.cwd ?? '.'),
       id: command.id ?? index,
       dependsOn: command.dependsOn ?? [...deps],
       outputLength: command.outputLength ?? outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
@@ -110,56 +164,31 @@ export async function runp(options: RunpOptions) {
       deps.push(cleanCommand.id);
     }
 
-    const matchingNpmScripts = multimatch(npmScripts, command.cmd);
-    if (matchingNpmScripts.length > 0) {
-      return matchingNpmScripts.map((script) => ({
+    const npmScripts = await loadNpmWorkspaceScripts(cleanCommand.cwd ?? '.');
+
+    const matchingNpmScripts = npmScripts.flatMap(({ scriptName, scriptCommand }) => {
+      if (multimatch(scriptName, cleanCommand.cmd).length === 0) {
+        return [];
+      }
+
+      const [scriptCmd = '', ...args] = scriptCommand(cleanCommand.args ?? []);
+
+      return {
         ...cleanCommand,
-        name: script,
-        cmd: npmRunner,
-        args: ['run', '--silent', script].concat(cleanCommand.args?.length ? ['--', ...cleanCommand.args] : []),
-      }));
+        name: scriptName,
+        cmd: scriptCmd,
+        args,
+      };
+    });
+
+    if (matchingNpmScripts.length > 0) {
+      return matchingNpmScripts;
     }
 
-    return cleanCommand;
+    return [cleanCommand];
   });
 
-  if (process.env.RUNP === RUNP_TASK_V) {
-    console.log(`${RUNP_TASK_DELEGATE}${JSON.stringify(resolvedCommands)}`);
-    process.exit();
-  }
-
-  const tasks: Task[] = resolvedCommands.map((cmd) => task(cmd, () => tasks));
-
-  let stop;
-  if (process.stdout.isTTY || options.target) {
-    stop = renderTTY(tasks, options.target);
-  } else {
-    await renderNonTTY(tasks);
-  }
-
-  const results = await Promise.all(
-    tasks.map((task) =>
-      task.result
-        .then(
-          (output) =>
-            ({
-              result: 'success',
-              output,
-            } as const),
-        )
-        .catch(
-          (output: string) =>
-            ({
-              result: 'error',
-              output,
-            } as const),
-        ),
-    ),
-  );
-
-  stop?.();
-
-  return results;
+  return (await Promise.all(resolvedCommandsPromise)).flat();
 }
 
 function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['target']) {

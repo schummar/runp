@@ -38,6 +38,13 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength }, 
         </>
       )}
 
+      {forever && (
+        <>
+          {' '}
+          <Text shrink fill="─" />{' '}
+        </>
+      )}
+
       {showOutput && (
         <Paragraph margin={[1, 0, 1, 2]} maxLines={status === 'error' ? undefined : outputLength}>
           {output}

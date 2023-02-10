@@ -10,14 +10,14 @@ export interface Task {
 }
 
 export interface TaskState {
-  status: 'pending' | 'inProgress' | 'done' | 'error';
+  status: 'pending' | 'inProgress' | 'done' | 'error' | 'dependencyError';
   output: string;
   time?: number;
   subTasks?: Task[];
 }
 
 export function task(command: RunpCommand, allTasks: () => Task[]): Task {
-  const { name, cmd, args = [], cwd, dependsOn } = command;
+  const { name, cmd, args = [], env = process.env, cwd, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
   const state = new Store<TaskState>({
     status: 'pending',
@@ -31,7 +31,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
         if (status === 'done') {
           resolve(state.getState().output);
           setTimeout(() => cancel());
-        } else if (status === 'error') {
+        } else if (status === 'error' || status === 'dependencyError') {
           reject(state.getState().output);
           setTimeout(() => cancel());
         }
@@ -53,6 +53,10 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
     try {
       await Promise.all(dependencies.map((j) => j.result));
     } catch {
+      state.update((state) => {
+        state.status = 'dependencyError';
+      });
+
       return;
     }
 
@@ -67,7 +71,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       stdio: 'pipe',
       cwd,
       env: {
-        ...process.env,
+        ...env,
         FORCE_COLOR: isTTY ? '1' : undefined, // Some libs color output when this env var is set
         RUNP: RUNP_TASK_V, // Tell child processes, especially runp itself, that they are running in runp
         RUNP_TTY: isTTY ? '1' : undefined, // Runp child processes can print as if they were running in a tty
@@ -114,7 +118,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
 
   return {
     command,
-    name: (name ?? fullCmd) + (cwd ? ` (${cwd})` : ''),
+    name: (name ?? fullCmd) + (cwd && cwd !== process.cwd() ? ` (${cwd})` : ''),
     state,
     result,
   };
