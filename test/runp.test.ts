@@ -1,10 +1,9 @@
+import { RenderOptions } from '@schummar/react-terminal';
+import pty from 'node-pty';
 import { setTimeout } from 'timers/promises';
+import { describe, expect, test } from 'vitest';
 import { Terminal } from 'xterm-headless';
 import { runp } from '../src';
-import { test, expect, describe } from 'vitest';
-import { RenderOptions } from '@schummar/react-terminal';
-import { deepEqual } from 'fast-equals';
-import pty from 'node-pty';
 
 type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 

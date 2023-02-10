@@ -51,8 +51,8 @@ export interface RunpOptions extends RunpCommonOptions {
 }
 
 export const DEFAULT_OUTPUT_LENGTH = 10;
-export const RUNP_TASK_V = 'v1';
-export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}`;
+export const RUNP_TASK_V = 'N1BLAX3xSn-WvsKuLatw0';
+export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}__`;
 
 const switchRegexp = /s|p|f(=(true|false))?|k(=(true|false))?|n=\d+/g;
 
@@ -61,12 +61,16 @@ export async function runp(options: RunpOptions) {
 
   if (process.env.RUNP === RUNP_TASK_V) {
     console.log(
-      `${RUNP_TASK_DELEGATE}${JSON.stringify(
-        resolvedCommands.map((cmd) => ({
-          ...cmd,
-          env: cmd.env ?? process.env,
-        })),
-      )}`,
+      [
+        RUNP_TASK_DELEGATE,
+        JSON.stringify(
+          resolvedCommands.map((cmd) => ({
+            ...cmd,
+            env: cmd.env ?? process.env,
+          })),
+        ),
+        RUNP_TASK_DELEGATE,
+      ].join(''),
     );
     process.exit();
   }

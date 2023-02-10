@@ -92,8 +92,11 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
     subProcess.on('close', async (code) => {
       const { rawOutput } = state.getState();
 
-      if (rawOutput.startsWith(RUNP_TASK_DELEGATE)) {
-        const commands = JSON.parse(rawOutput.slice(RUNP_TASK_DELEGATE.length)) as RunpCommand[];
+      const delegationStart = rawOutput.indexOf(RUNP_TASK_DELEGATE);
+      const delegationEnd = rawOutput.indexOf(RUNP_TASK_DELEGATE, delegationStart + 1);
+      if (delegationStart >= 0 && delegationEnd > delegationStart) {
+        const json = rawOutput.slice(delegationStart + RUNP_TASK_DELEGATE.length, delegationEnd);
+        const commands = JSON.parse(json) as RunpCommand[];
         const tasks: Task[] = commands.map((command) => task(command, () => tasks));
 
         state.update((state) => {
