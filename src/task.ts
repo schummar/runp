@@ -11,6 +11,7 @@ export interface Task {
 
 export interface TaskState {
   status: 'pending' | 'inProgress' | 'done' | 'error' | 'dependencyError';
+  rawOutput: string;
   output: string;
   time?: number;
   subTasks?: Task[];
@@ -21,6 +22,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
   const fullCmd = [cmd, ...args].join(' ');
   const state = new Store<TaskState>({
     status: 'pending',
+    rawOutput: '',
     output: '',
   });
 
@@ -79,22 +81,27 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
     });
 
     const append = (data: any) => {
-      const asString = data.toString() as string;
-
       state.update((state) => {
-        if (asString.startsWith(RUNP_TASK_DELEGATE)) {
-          const commands = JSON.parse(asString.slice(RUNP_TASK_DELEGATE.length)) as RunpCommand[];
-          const tasks: Task[] = commands.map((command) => task(command, () => tasks));
-          state.subTasks = tasks;
-        } else {
-          state.output += data.toString();
-        }
+        state.rawOutput += data.toString();
+        state.output = state.rawOutput.startsWith(RUNP_TASK_DELEGATE) ? '' : state.rawOutput;
       });
     };
     subProcess.stdout.on('data', append);
     subProcess.stderr.on('data', append);
 
     subProcess.on('close', async (code) => {
+      const { rawOutput } = state.getState();
+
+      if (rawOutput.startsWith(RUNP_TASK_DELEGATE)) {
+        const commands = JSON.parse(rawOutput.slice(RUNP_TASK_DELEGATE.length)) as RunpCommand[];
+        const tasks: Task[] = commands.map((command) => task(command, () => tasks));
+
+        state.update((state) => {
+          state.output = '';
+          state.subTasks = tasks;
+        });
+      }
+
       const { subTasks } = state.getState();
       let hasErrors = !!code;
 
