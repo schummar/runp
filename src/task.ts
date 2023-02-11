@@ -83,7 +83,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
     const append = (data: any) => {
       state.update((state) => {
         state.rawOutput += data.toString();
-        state.output = state.rawOutput.startsWith(RUNP_TASK_DELEGATE) ? '' : state.rawOutput;
+        state.output = state.rawOutput.includes(RUNP_TASK_DELEGATE) ? '' : state.rawOutput;
       });
     };
     subProcess.stdout.on('data', append);
