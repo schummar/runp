@@ -1,5 +1,4 @@
 import { RenderOptions } from '@schummar/react-terminal';
-import pty from 'node-pty';
 import { setTimeout } from 'timers/promises';
 import { describe, expect, test } from 'vitest';
 import { Terminal } from 'xterm-headless';
@@ -55,79 +54,6 @@ const poll = async (assertion: () => void, max = 4000) => {
 };
 
 describe.concurrent('runp', () => {
-  test.todo('cli', async () => {
-    const term = new TestTerminal({ cols: 25, rows: 24 });
-    term.write('first line\n');
-
-    const p = pty.spawn(
-      'tsx',
-      [
-        //
-        'src/cli.ts',
-        '-k',
-        '-n=2',
-        'echo short',
-        'echo something very very very long',
-        './test/succeedingScript.sh',
-        './test/failingScript.sh',
-      ],
-      {
-        name: 'foo',
-        cols: 25,
-        rows: 24,
-        cwd: process.cwd(),
-        env: {
-          ...process.env,
-          RUNP: '',
-          RUNP_TTY: '',
-        },
-      },
-    );
-
-    term.term.onData((data) => {
-      p.write(data);
-    });
-
-    p.onData((data) => {
-      term.write(data);
-    });
-
-    const result = await new Promise<{ exitCode: number }>((resolve) => {
-      p.onExit(resolve);
-    });
-
-    expect(result).toEqual({});
-
-    await poll(() => term.getBuffer().length === 24);
-
-    expect(term.getBuffer()).toStrictEqual([
-      'first line               ',
-      '✔ echo short [#.###s]    ',
-      '                         ',
-      '  short                  ',
-      '                         ',
-      '✔ echo someth... [#.###s]',
-      '                         ',
-      '  something very very    ',
-      '  very long              ',
-      '                         ',
-      '⠋ ./test/succeedingScr...',
-      '                         ',
-      '  line2                  ',
-      '  line3                  ',
-      '                         ',
-      '⠋ ./test/failingScript.sh',
-      '                         ',
-      '  line2                  ',
-      '  line3                  ',
-      '                         ',
-      '                         ',
-      '                         ',
-      '                         ',
-      '                         ',
-    ]);
-  });
-
   test('node api', async () => {
     const term = new TestTerminal({ cols: 25, rows: 24 });
     term.write('first line\n');
@@ -135,7 +61,7 @@ describe.concurrent('runp', () => {
     const finished = runp({
       keepOutput: true,
       outputLength: 2,
-      commands: ['echo short', 'echo something very very very long', './test/succeedingScript.sh', './test/failingScript.sh'],
+      commands: ['echo short', 'echo something very very very long', './test/succeedingScript.mjs', './test/failingScript.mjs'],
       target: term,
     });
 
@@ -156,7 +82,7 @@ describe.concurrent('runp', () => {
         '  line2                  ',
         '  line3                  ',
         '                         ',
-        '⠋ ./test/failingScript.sh',
+        '⠋ ./test/failingScript...',
         '                         ',
         '  line2                  ',
         '  line3                  ',
@@ -252,8 +178,8 @@ describe.concurrent('runp', () => {
     runp({
       forever: true,
       commands: [
-        { name: 'task1', cmd: 'sh', args: ['-c', 'echo task1 output && sleep 10'] },
-        { name: 'task2', cmd: 'sh', args: ['-c', 'echo task2 output && sleep 10'] },
+        { name: 'task1', cmd: 'node', args: ['-e', 'console.log("task1 output"); setTimeout(()=>{},10000)'] },
+        { name: 'task2', cmd: 'node', args: ['-e', 'console.log("task2 output"); setTimeout(()=>{},10000)'] },
       ],
       target: term,
     });
