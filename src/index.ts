@@ -201,7 +201,7 @@ function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['tar
   [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
     process.on(eventType, () => {
       stop();
-      process.exit();
+      // process.exit();
     });
   });
 

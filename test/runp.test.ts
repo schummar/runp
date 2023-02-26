@@ -3,6 +3,7 @@ import { setTimeout } from 'timers/promises';
 import { describe, expect, test } from 'vitest';
 import { Terminal } from 'xterm-headless';
 import { runp } from '../src';
+import pty from 'node-pty';
 
 type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 
@@ -198,5 +199,81 @@ describe.concurrent('runp', () => {
         '                         ',
       ]),
     );
+  });
+
+  test('cli', async () => {
+    const term = new TestTerminal({ cols: 25, rows: 24 });
+    term.write('first line\n');
+
+    const p = pty.spawn(
+      'tsx',
+      [
+        //
+        'src/cli.ts',
+        '-k',
+        '-n=2',
+        'echo short',
+        'echo something very very very long',
+        './test/succeedingScript.mjs',
+        './test/failingScript.mjs',
+      ],
+      {
+        name: 'foo',
+        cols: 25,
+        rows: 24,
+        cwd: process.cwd(),
+        env: {
+          ...process.env,
+          RUNP: '',
+          RUNP_TTY: '',
+        },
+      },
+    );
+
+    term.term.onData((data) => {
+      p.write(data);
+    });
+
+    p.onData((data) => {
+      term.write(data);
+    });
+
+    const result = await new Promise<{ exitCode: number }>((resolve) => {
+      p.onExit(resolve);
+    });
+
+    expect(result).toEqual({
+      exitCode: 1,
+      signal: 0,
+    });
+
+    await poll(() => term.getBuffer().length === 24);
+
+    expect(term.getBuffer()).toStrictEqual([
+      'first line               ',
+      '✔ echo short [#.###s]    ',
+      '                         ',
+      '  short                  ',
+      '                         ',
+      '✔ echo someth... [#.###s]',
+      '                         ',
+      '  something very very    ',
+      '  very long              ',
+      '                         ',
+      '✔ ./test/succ... [#.###s]',
+      '                         ',
+      '  line2                  ',
+      '  line3                  ',
+      '                         ',
+      '✖ ./test/fail... [#.###s]',
+      '                         ',
+      '  line1                  ',
+      '  line2                  ',
+      '  line3                  ',
+      '                         ',
+      '                         ',
+      '                         ',
+      '                         ',
+    ]);
   });
 });

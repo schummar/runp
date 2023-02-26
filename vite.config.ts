@@ -5,6 +5,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     testTimeout: 10000,
+    threads: false,
     env: {
       RUNP: '',
     },
