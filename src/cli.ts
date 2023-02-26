@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { cli } from 'cleye';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';

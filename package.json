@@ -20,7 +20,7 @@
   },
   "main": "dist/index.js",
   "bin": {
-    "runp": "cli.js"
+    "runp": "dist/cli.js"
   },
   "types": "dist/index.d.ts",
   "scripts": {
@@ -70,7 +70,7 @@
     "cli.js"
   ],
   "volta": {
-    "node": "18.14.0",
-    "pnpm": "7.27.0"
+    "node": "18.14.2",
+    "pnpm": "7.28.0"
   }
 }
