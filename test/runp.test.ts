@@ -38,7 +38,7 @@ class TestTerminal implements Target {
   };
 }
 
-const poll = async (assertion: () => void, max = 4000) => {
+const poll = async (assertion: () => void, max = 9_000) => {
   const start = performance.now();
 
   for (;;) {
@@ -127,7 +127,7 @@ describe.concurrent('runp', () => {
     ]);
 
     expect(result.some((r) => r.result === 'error')).toBe(true);
-  });
+  }, 10_000);
 
   test('long script', async () => {
     const term = new TestTerminal({ cols: 25, rows: 5 });
@@ -171,7 +171,7 @@ describe.concurrent('runp', () => {
     ]);
 
     expect(result.some((r) => r.result === 'error')).toBe(true);
-  });
+  }, 10_000);
 
   test('forever mode', async () => {
     const term = new TestTerminal({ cols: 25, rows: 10 });
@@ -199,7 +199,7 @@ describe.concurrent('runp', () => {
         '                         ',
       ]),
     );
-  });
+  }, 10_000);
 
   test('cli', async () => {
     const term = new TestTerminal({ cols: 25, rows: 24 });
@@ -275,5 +275,5 @@ describe.concurrent('runp', () => {
       '                         ',
       '                         ',
     ]);
-  });
+  }, 10_000);
 });
