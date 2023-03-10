@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { Queue } from 'schummar-queue';
 import { Store } from 'schummar-state/react';
 import { RunpCommand, RUNP_TASK_DELEGATE, RUNP_TASK_V } from '.';
 
@@ -18,7 +19,7 @@ export interface TaskState {
   subTasks?: Task[];
 }
 
-export function task(command: RunpCommand, allTasks: () => Task[]): Task {
+export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue()): Task {
   const { name, cmd, args = [], env = process.env, cwd, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
   const state = new Store<TaskState>({
@@ -44,7 +45,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
   });
   result.catch(() => undefined);
 
-  (async () => {
+  q.schedule(async () => {
     await Promise.resolve();
 
     const dependencies = allTasks().filter(
@@ -164,7 +165,9 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
         state.output = String(error);
       }),
     );
-  })();
+
+    await result.catch(() => undefined);
+  });
 
   return {
     command,

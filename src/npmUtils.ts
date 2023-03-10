@@ -115,7 +115,8 @@ export async function listNpmWorkspaces(npmRunner: 'npm' | 'pnpm' | 'yarn', cwd:
       });
     });
 
-    const json = JSON.parse(result);
+    const resultCleaned = `[${result.replace(/\]\s*\[/g, '],[')}]`;
+    const json = JSON.parse(resultCleaned).flat();
 
     if (!Array.isArray(json)) {
       throw new Error('workspace list did not return an array');
