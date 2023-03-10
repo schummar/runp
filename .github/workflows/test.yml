@@ -31,4 +31,4 @@ jobs:
         run: pnpm i --frozen-lockfile
 
       - name: Test
-        run: npx tsx src/cli.ts lint test build :publint
+        run: npx tsx src/cli.ts lint test build :s publint
