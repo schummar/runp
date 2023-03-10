@@ -27,7 +27,7 @@ export interface RunpCommand extends RunpCommonOptions {
   /** Command name. Only for display purposes. */
   name?: string;
   /** Program to execute */
-  cmd: string;
+  cmd: string | ((feedback: RunpFeedback) => Promise<void>);
   /** Args to pass into program */
   args?: string[];
   /** Environment variables to set
@@ -40,6 +40,12 @@ export interface RunpCommand extends RunpCommonOptions {
   dependsOn?: string | number | Array<string | number>;
   /** Set cwd for command */
   cwd?: string;
+}
+
+export interface RunpFeedback {
+  updateStatus(status: string): void;
+  updateTitle(title: string): void;
+  updateOutput(output: string): void;
 }
 
 export type RunpCommandRaw = Omit<RunpCommand, 'args'> & { args?: (string | false | undefined | null)[] };
@@ -168,22 +174,26 @@ export async function resolveCommands(options: RunpOptions) {
       deps.push(cleanCommand.id);
     }
 
+    const cmd = cleanCommand.cmd;
     const npmScripts = await loadNpmWorkspaceScripts(cleanCommand.cwd ?? '.');
 
-    const matchingNpmScripts = npmScripts.flatMap(({ scriptName, scriptCommand }) => {
-      if (multimatch(scriptName, cleanCommand.cmd).length === 0) {
-        return [];
-      }
+    const matchingNpmScripts =
+      typeof cmd !== 'string'
+        ? []
+        : npmScripts.flatMap(({ scriptName, scriptCommand }) => {
+            if (multimatch(scriptName, cmd).length === 0) {
+              return [];
+            }
 
-      const [scriptCmd = '', ...args] = scriptCommand(cleanCommand.args ?? []);
+            const [scriptCmd = '', ...args] = scriptCommand(cleanCommand.args ?? []);
 
-      return {
-        ...cleanCommand,
-        name: scriptName,
-        cmd: scriptCmd,
-        args,
-      };
-    });
+            return {
+              ...cleanCommand,
+              name: scriptName,
+              cmd: scriptCmd,
+              args,
+            };
+          });
 
     if (matchingNpmScripts.length > 0) {
       return matchingNpmScripts;
@@ -216,16 +226,15 @@ function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['tar
 async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
   for (const {
     command: { keepOutput },
-    name,
     result,
     state,
   } of tasks) {
     await result.catch(() => undefined);
-    const { status, subTasks } = state.getState();
+    const { status, statusString = statusIcons[status], title, subTasks } = state.getState();
     const output = state.getState().output.trim();
     const showOutput = (status === 'error' || keepOutput) && output.length > 0;
 
-    console.log(indent(`${statusIcons[status]} ${name} [${formatTime(state.getState().time ?? 0)}]`, margin));
+    console.log(indent(`${statusString} ${title} [${formatTime(state.getState().time ?? 0)}]`, margin));
 
     if (showOutput) {
       console.log(indent(`\n${output}\n`, margin + 1));

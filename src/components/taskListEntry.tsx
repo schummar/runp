@@ -4,8 +4,10 @@ import { statusIcons } from '../statusIcons';
 import { Task } from '../task';
 import { Spinner } from './spinner';
 
-export function TaskListEntry({ command: { keepOutput, forever, outputLength }, name, state }: Task) {
+export function TaskListEntry({ command: { keepOutput, forever, outputLength }, state }: Task) {
   const status = useStoreState(state, (x) => x.status);
+  const statusString = useStoreState(state, (x) => x.statusString);
+  const title = useStoreState(state, (x) => x.title);
   const time = useStoreState(state, (x) => x.time);
   const output = useStoreState(state, (x) => x.output.trim());
   const subTasks = useStoreState(state, (x) => x.subTasks);
@@ -14,7 +16,9 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength }, 
 
   return (
     <Paragraph>
-      {status === 'pending' ? (
+      {statusString !== undefined ? (
+        <Text>{statusString}</Text>
+      ) : status === 'pending' ? (
         <Text>{statusIcons.pending}</Text>
       ) : status === 'inProgress' && forever ? (
         <Text color="green">{statusIcons.forever}</Text>
@@ -28,7 +32,7 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength }, 
       <Text>&nbsp;</Text>
 
       <Text bold shrink ellipsis>
-        {name}
+        {title}
       </Text>
 
       {time !== undefined && (

@@ -4,13 +4,14 @@ import { RunpCommand, RUNP_TASK_DELEGATE, RUNP_TASK_V } from '.';
 
 export interface Task {
   command: RunpCommand;
-  name: string;
   state: Store<TaskState>;
   result: Promise<string>;
 }
 
 export interface TaskState {
   status: 'pending' | 'inProgress' | 'done' | 'error' | 'dependencyError';
+  statusString?: string;
+  title: string;
   rawOutput: string;
   output: string;
   time?: number;
@@ -22,6 +23,7 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
   const fullCmd = [cmd, ...args].join(' ');
   const state = new Store<TaskState>({
     status: 'pending',
+    title: (name ?? fullCmd) + (cwd && cwd !== process.cwd() ? ` (${cwd})` : ''),
     rawOutput: '',
     output: '',
   });
@@ -66,6 +68,44 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
     state.update((state) => {
       state.status = 'inProgress';
     });
+
+    if (cmd instanceof Function) {
+      try {
+        await cmd({
+          updateStatus(status) {
+            state.update((state) => {
+              state.statusString = status;
+            });
+          },
+          updateTitle(title) {
+            state.update((state) => {
+              state.title = title;
+            });
+          },
+          updateOutput(output) {
+            state.update((state) => {
+              state.rawOutput += output;
+              state.output = output;
+            });
+          },
+        });
+
+        state.update((state) => {
+          state.status = 'done';
+        });
+      } catch (error) {
+        state.update((state) => {
+          state.status = 'error';
+          state.output = String(error);
+        });
+      } finally {
+        state.update((state) => {
+          state.time = performance.now() - start;
+        });
+      }
+
+      return;
+    }
 
     const isTTY = process.stdout.isTTY || process.env.RUNP_TTY;
 
@@ -119,16 +159,15 @@ export function task(command: RunpCommand, allTasks: () => Task[]): Task {
       });
     });
 
-    subProcess.on('error', (e) =>
+    subProcess.on('error', (error) =>
       state.update((state) => {
-        state.output = String(e);
+        state.output = String(error);
       }),
     );
   })();
 
   return {
     command,
-    name: (name ?? fullCmd) + (cwd && cwd !== process.cwd() ? ` (${cwd})` : ''),
     state,
     result,
   };
