@@ -33,10 +33,19 @@ const argv = cli({
       default: false,
     },
     print: {
-      alias: 'p',
       type: Boolean,
       description: `Print the commands that would be run`,
       default: false,
+    },
+    parallelTasks: {
+      alias: 'p',
+      type: Number,
+      description: `Maximum number of parallel tasks`,
+    },
+    displayTimeOver: {
+      alias: 't',
+      type: Number,
+      description: `Display time in status line if the task took more than the given ms`,
     },
   },
 

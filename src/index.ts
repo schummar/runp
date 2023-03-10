@@ -20,6 +20,8 @@ export interface RunpCommonOptions {
   keepOutput?: boolean;
   /** Task will run forever. It won't display a spinner but a different symbol instead */
   forever?: boolean;
+  /** Display time in status line if the task took more than the given ms */
+  displayTimeOver?: number;
 }
 
 export interface RunpCommand extends RunpCommonOptions {
@@ -203,6 +205,7 @@ export async function resolveCommands(options: RunpOptions) {
       outputLength: command.outputLength ?? outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
       keepOutput: command.keepOutput ?? keepOutput ?? options.keepOutput,
       forever: command.forever ?? forever ?? options.forever,
+      displayTimeOver: command.displayTimeOver ?? options.displayTimeOver,
       env: command.env ?? process.env,
     } satisfies RunpCommand;
 
@@ -319,16 +322,17 @@ function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['tar
 
 async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
   for (const {
-    command: { keepOutput },
+    command: { keepOutput, displayTimeOver = -Infinity },
     result,
     state,
   } of tasks) {
     await result.catch(() => undefined);
-    const { status, statusString = statusIcons[status], title, subTasks } = state.getState();
+    const { status, statusString = statusIcons[status], title, subTasks, time } = state.getState();
     const output = state.getState().output.trim();
     const showOutput = (status === 'error' || keepOutput) && output.length > 0;
+    const timeString = time !== undefined && time >= displayTimeOver ? ` [${formatTime(time)}]` : '';
 
-    console.info(indent(`${statusString} ${title} [${formatTime(state.getState().time ?? 0)}]`, margin));
+    console.info(indent(`${statusString} ${title}${timeString}`, margin));
 
     if (showOutput) {
       console.info(indent(`\n${output}\n`, margin + 1));

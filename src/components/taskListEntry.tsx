@@ -4,7 +4,7 @@ import { statusIcons } from '../statusIcons';
 import { Task } from '../task';
 import { Spinner } from './spinner';
 
-export function TaskListEntry({ command: { keepOutput, forever, outputLength }, state }: Task) {
+export function TaskListEntry({ command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity }, state }: Task) {
   const status = useStoreState(state, (x) => x.status);
   const statusString = useStoreState(state, (x) => x.statusString);
   const title = useStoreState(state, (x) => x.title);
@@ -35,10 +35,10 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength }, 
         {title}
       </Text>
 
-      {time !== undefined && (
+      {time !== undefined && time > displayTimeOver && (
         <>
           <Text>&nbsp;</Text>
-          <Text dim>{time !== undefined && `[${(time / 1000).toFixed(3)}s]`}</Text>
+          <Text dim>[{(time / 1000).toFixed(3)}s]</Text>
         </>
       )}
 
