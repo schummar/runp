@@ -111,6 +111,7 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue
     const isTTY = process.stdout.isTTY || process.env.RUNP_TTY;
 
     const subProcess = spawn(cmd, args, {
+      shell: process.platform === 'win32',
       stdio: 'pipe',
       cwd,
       env: {
