@@ -3,7 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@schummar/react-terminal': 1.4.6
   '@types/node': 20.4.9
-  '@types/react': 18.2.20
+  '@types/react': 18.2.19
   '@types/react-reconciler': 0.28.2
   '@typescript-eslint/eslint-plugin': 6.3.0
   '@typescript-eslint/parser': 6.3.0
@@ -33,16 +33,16 @@ specifiers:
   xterm-headless: 5.2.1
 
 devDependencies:
-  '@schummar/react-terminal': 1.4.6_tqcexqh6fwwgotsn637bjd23ma
+  '@schummar/react-terminal': 1.4.6_rnfsqalza3mum2idr6hbg52nku
   '@types/node': 20.4.9
-  '@types/react': 18.2.20
+  '@types/react': 18.2.19
   '@types/react-reconciler': 0.28.2
   '@typescript-eslint/eslint-plugin': 6.3.0_tjahr4n2ltb7xczrvozedexli4
   '@typescript-eslint/parser': 6.3.0_7haavtekmro7ptbnqmctjaodju
   '@vitejs/plugin-react': 4.0.4_vite@4.4.9
   chalk: 5.3.0
   cleye: 1.3.2
-  cross-state: 0.17.0_j3ahe22lw6ac2w6qvqp4kjqnqy
+  cross-state: 0.17.0_6kgymidexis2l23kiss4by6rqm
   esbuild: 0.19.0
   eslint: 8.46.0
   eslint-config-prettier: 9.0.0_eslint@8.46.0
@@ -1183,7 +1183,7 @@ packages:
       config-chain: 1.1.13
     dev: true
 
-  /@schummar/react-terminal/1.4.6_tqcexqh6fwwgotsn637bjd23ma:
+  /@schummar/react-terminal/1.4.6_rnfsqalza3mum2idr6hbg52nku:
     resolution: {integrity: sha512-/bmRdDgse8mhPUILasOgf26L6nBP7tElgSSIY+yyeop17a+F5RoQPS59m8XssZPQ8Vj2TbIPzNQn+yeu83EdRA==}
     peerDependencies:
       '@types/react': ^18.0.20
@@ -1196,7 +1196,7 @@ packages:
       '@types/react-reconciler':
         optional: true
     dependencies:
-      '@types/react': 18.2.20
+      '@types/react': 18.2.19
       '@types/react-reconciler': 0.28.2
       chalk: 5.3.0
       react: 18.2.0
@@ -1337,11 +1337,11 @@ packages:
   /@types/react-reconciler/0.28.2:
     resolution: {integrity: sha512-8tu6lHzEgYPlfDf/J6GOQdIc+gs+S2yAqlby3zTsB3SP2svlqTYe5fwZNtZyfactP74ShooP2vvi1BOp9ZemWw==}
     dependencies:
-      '@types/react': 18.2.20
+      '@types/react': 18.2.19
     dev: true
 
-  /@types/react/18.2.20:
-    resolution: {integrity: sha512-WKNtmsLWJM/3D5mG4U84cysVY31ivmyw85dE84fOCk5Hx78wezB/XEjVPWl2JTZ5FkEeaTJf+VgUAUn3PE7Isw==}
+  /@types/react/18.2.19:
+    resolution: {integrity: sha512-e2S8wmY1ePfM517PqCG80CcE48Xs5k0pwJzuDZsfE8IZRRBfOMCF+XqnFxu6mWtyivum1MQm4aco+WIt6Coimw==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
@@ -1954,7 +1954,7 @@ packages:
       which: 2.0.2
     dev: true
 
-  /cross-state/0.17.0_j3ahe22lw6ac2w6qvqp4kjqnqy:
+  /cross-state/0.17.0_6kgymidexis2l23kiss4by6rqm:
     resolution: {integrity: sha512-qHI3NDvJsu1T1EoHPivxzph2y+QbBP1VGU2Xnu34MsBEluS9GUGeXrgtp4lDe4Jou+sT1pfTpnzbCh8eHGezMA==}
     peerDependencies:
       '@types/react': '>=16.8.0'
@@ -1968,7 +1968,7 @@ packages:
       react:
         optional: true
     dependencies:
-      '@types/react': 18.2.20
+      '@types/react': 18.2.19
       react: 18.2.0
     dev: true
 
