@@ -1,9 +1,9 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@schummar/react-terminal': 1.4.6
+  '@schummar/react-terminal': 1.4.7
   '@types/node': 20.4.9
-  '@types/react': 18.2.19
+  '@types/react': 18.2.20
   '@types/react-reconciler': 0.28.2
   '@typescript-eslint/eslint-plugin': 6.3.0
   '@typescript-eslint/parser': 6.3.0
@@ -33,16 +33,16 @@ specifiers:
   xterm-headless: 5.2.1
 
 devDependencies:
-  '@schummar/react-terminal': 1.4.6_rnfsqalza3mum2idr6hbg52nku
+  '@schummar/react-terminal': 1.4.7_tqcexqh6fwwgotsn637bjd23ma
   '@types/node': 20.4.9
-  '@types/react': 18.2.19
+  '@types/react': 18.2.20
   '@types/react-reconciler': 0.28.2
   '@typescript-eslint/eslint-plugin': 6.3.0_tjahr4n2ltb7xczrvozedexli4
   '@typescript-eslint/parser': 6.3.0_7haavtekmro7ptbnqmctjaodju
   '@vitejs/plugin-react': 4.0.4_vite@4.4.9
   chalk: 5.3.0
   cleye: 1.3.2
-  cross-state: 0.17.0_6kgymidexis2l23kiss4by6rqm
+  cross-state: 0.17.0_j3ahe22lw6ac2w6qvqp4kjqnqy
   esbuild: 0.19.0
   eslint: 8.46.0
   eslint-config-prettier: 9.0.0_eslint@8.46.0
@@ -306,7 +306,7 @@ packages:
     resolution: {integrity: sha512-BDXFbYOJzT/NBEtp71cvsrGPwGAMGRB/349rwKuoxNSiKjPraNNnlK6MIIabViCjqZugu6j+xeMDlEkWdHHJSg==}
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.6.2
+      get-tsconfig: 4.7.0
     dev: true
 
   /@esbuild-kit/core-utils/3.1.0:
@@ -320,7 +320,7 @@ packages:
     resolution: {integrity: sha512-Qwfvj/qoPbClxCRNuac1Du01r9gvNOT+pMYtJDapfB1eoGN1YlJ1BixLyL9WVENRx5RXgNLdfYdx/CuswlGhMw==}
     dependencies:
       '@esbuild-kit/core-utils': 3.1.0
-      get-tsconfig: 4.6.2
+      get-tsconfig: 4.7.0
     dev: true
 
   /@esbuild/android-arm/0.17.19:
@@ -1183,8 +1183,8 @@ packages:
       config-chain: 1.1.13
     dev: true
 
-  /@schummar/react-terminal/1.4.6_rnfsqalza3mum2idr6hbg52nku:
-    resolution: {integrity: sha512-/bmRdDgse8mhPUILasOgf26L6nBP7tElgSSIY+yyeop17a+F5RoQPS59m8XssZPQ8Vj2TbIPzNQn+yeu83EdRA==}
+  /@schummar/react-terminal/1.4.7_tqcexqh6fwwgotsn637bjd23ma:
+    resolution: {integrity: sha512-79Mqo+5PwEKhy7QaioH9t5gYdW8lkepidA0GpYpAHEDrtNWCee0+x75lJZuPCfcFiYTtV/QwAZvDdSy6mAG4gA==}
     peerDependencies:
       '@types/react': ^18.0.20
       '@types/react-reconciler': ^0.28.0
@@ -1196,7 +1196,7 @@ packages:
       '@types/react-reconciler':
         optional: true
     dependencies:
-      '@types/react': 18.2.19
+      '@types/react': 18.2.20
       '@types/react-reconciler': 0.28.2
       chalk: 5.3.0
       react: 18.2.0
@@ -1337,11 +1337,11 @@ packages:
   /@types/react-reconciler/0.28.2:
     resolution: {integrity: sha512-8tu6lHzEgYPlfDf/J6GOQdIc+gs+S2yAqlby3zTsB3SP2svlqTYe5fwZNtZyfactP74ShooP2vvi1BOp9ZemWw==}
     dependencies:
-      '@types/react': 18.2.19
+      '@types/react': 18.2.20
     dev: true
 
-  /@types/react/18.2.19:
-    resolution: {integrity: sha512-e2S8wmY1ePfM517PqCG80CcE48Xs5k0pwJzuDZsfE8IZRRBfOMCF+XqnFxu6mWtyivum1MQm4aco+WIt6Coimw==}
+  /@types/react/18.2.20:
+    resolution: {integrity: sha512-WKNtmsLWJM/3D5mG4U84cysVY31ivmyw85dE84fOCk5Hx78wezB/XEjVPWl2JTZ5FkEeaTJf+VgUAUn3PE7Isw==}
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
@@ -1725,7 +1725,7 @@ packages:
     hasBin: true
     dependencies:
       caniuse-lite: 1.0.30001519
-      electron-to-chromium: 1.4.488
+      electron-to-chromium: 1.4.490
       node-releases: 2.0.13
       update-browserslist-db: 1.0.11_browserslist@4.21.10
     dev: true
@@ -1954,7 +1954,7 @@ packages:
       which: 2.0.2
     dev: true
 
-  /cross-state/0.17.0_6kgymidexis2l23kiss4by6rqm:
+  /cross-state/0.17.0_j3ahe22lw6ac2w6qvqp4kjqnqy:
     resolution: {integrity: sha512-qHI3NDvJsu1T1EoHPivxzph2y+QbBP1VGU2Xnu34MsBEluS9GUGeXrgtp4lDe4Jou+sT1pfTpnzbCh8eHGezMA==}
     peerDependencies:
       '@types/react': '>=16.8.0'
@@ -1968,7 +1968,7 @@ packages:
       react:
         optional: true
     dependencies:
-      '@types/react': 18.2.19
+      '@types/react': 18.2.20
       react: 18.2.0
     dev: true
 
@@ -2091,8 +2091,8 @@ packages:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==}
     dev: true
 
-  /electron-to-chromium/1.4.488:
-    resolution: {integrity: sha512-Dv4sTjiW7t/UWGL+H8ZkgIjtUAVZDgb/PwGWvMsCT7jipzUV/u5skbLXPFKb6iV0tiddVi/bcS2/kUrczeWgIQ==}
+  /electron-to-chromium/1.4.490:
+    resolution: {integrity: sha512-6s7NVJz+sATdYnIwhdshx/N/9O6rvMxmhVoDSDFdj6iA45gHR8EQje70+RYsF4GeB+k0IeNSBnP7yG9ZXJFr7A==}
     dev: true
 
   /emoji-regex/8.0.0:
@@ -2566,8 +2566,8 @@ packages:
     engines: {node: '>=16'}
     dev: true
 
-  /get-tsconfig/4.6.2:
-    resolution: {integrity: sha512-E5XrT4CbbXcXWy+1jChlZmrmCwd5KGx502kDCXJJ7y898TtWW9FwoG5HfOLVRKmlmDGkWN2HM9Ho+/Y8F0sJDg==}
+  /get-tsconfig/4.7.0:
+    resolution: {integrity: sha512-pmjiZ7xtB8URYm74PlGJozDNyhvsVLUcpBa8DZBG3bWHwaHa9bPiRpiSfovw+fjhwONSCWKRyk+JQHEGZmMrzw==}
     dependencies:
       resolve-pkg-maps: 1.0.0
     dev: true
@@ -2603,7 +2603,7 @@ packages:
     hasBin: true
     dependencies:
       foreground-child: 3.1.1
-      jackspeak: 2.2.2
+      jackspeak: 2.2.3
       minimatch: 9.0.3
       minipass: 7.0.2
       path-scurry: 1.10.1
@@ -2949,8 +2949,8 @@ packages:
       lodash.uniqby: 4.7.0
     dev: true
 
-  /jackspeak/2.2.2:
-    resolution: {integrity: sha512-mgNtVv4vUuaKA97yxUHoA3+FkuhtxkjdXEWOyB/N76fjy0FjezEt34oy3epBtvCvS+7DyKwqCFWx/oJLV5+kCg==}
+  /jackspeak/2.2.3:
+    resolution: {integrity: sha512-pF0kfjmg8DJLxDrizHoCZGUFz4P4czQ3HyfW4BU0ffebYkzAVlBywp5zaxW/TM+r0sGbmrQdi8EQQVTJFxnGsQ==}
     engines: {node: '>=14'}
     dependencies:
       '@isaacs/cliui': 8.0.2

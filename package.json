@@ -36,9 +36,9 @@
     "prepublishOnly": "tsx src/cli.ts -i test lint build :s publint"
   },
   "devDependencies": {
-    "@schummar/react-terminal": "1.4.6",
+    "@schummar/react-terminal": "1.4.7",
     "@types/node": "20.4.9",
-    "@types/react": "18.2.19",
+    "@types/react": "18.2.20",
     "@types/react-reconciler": "0.28.2",
     "@typescript-eslint/eslint-plugin": "6.3.0",
     "@typescript-eslint/parser": "6.3.0",
