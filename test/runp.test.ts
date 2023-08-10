@@ -27,13 +27,14 @@ class TestTerminal implements Target {
 
     return Array(buffer.length - offset)
       .fill(0)
-      .map((x, i) =>
-        buffer
-          .getLine(offset + i)
-          ?.translateToString()
-          .replace(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '⠋')
-          .replace(/\[(.*)s\]/g, (x, y) => `[${''.padEnd(y.length - 4, '#')}.###s]`)
-          .replace(/\xA0/g, ' '),
+      .map(
+        (x, i) =>
+          buffer
+            .getLine(offset + i)
+            ?.translateToString()
+            .replace(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '⠋')
+            .replace(/\[(.*)s\]/g, (x, y) => `[${''.padEnd(y.length - 4, '#')}.###s]`)
+            .replace(/\xA0/g, ' '),
       );
   };
 }
@@ -69,11 +70,12 @@ describe.concurrent('runp', () => {
     await poll(() =>
       expect(term.getBuffer()).toStrictEqual([
         'first line               ',
-        '✔ echo short [#.###s]    ',
+        '                         ',
+        '✓ echo short [#.###s]    ',
         '                         ',
         '  short                  ',
         '                         ',
-        '✔ echo someth... [#.###s]',
+        '✓ echo someth... [#.###s]',
         '                         ',
         '  something very very    ',
         '  very long              ',
@@ -91,7 +93,6 @@ describe.concurrent('runp', () => {
         '                         ',
         '                         ',
         '                         ',
-        '                         ',
       ]),
     );
     term.write('additional line\n');
@@ -101,27 +102,27 @@ describe.concurrent('runp', () => {
 
     expect(term.getBuffer()).toEqual([
       'first line               ',
-      '✔ echo short [#.###s]    ',
+      'additional line          ',
+      '                         ',
+      '✓ echo short [#.###s]    ',
       '                         ',
       '  short                  ',
       '                         ',
-      '✔ echo someth... [#.###s]',
+      '✓ echo someth... [#.###s]',
       '                         ',
       '  something very very    ',
       '  very long              ',
       '                         ',
-      '✔ ./test/succ... [#.###s]',
+      '✓ ./test/succ... [#.###s]',
       '                         ',
       '  line2                  ',
       '  line3                  ',
       '                         ',
-      '✖ ./test/fail... [#.###s]',
+      '✕ ./test/fail... [#.###s]',
       '                         ',
       '  line1                  ',
       '  line2                  ',
       '  line3                  ',
-      '                         ',
-      'additional line          ',
       '                         ',
       '                         ',
     ]);
@@ -142,7 +143,7 @@ describe.concurrent('runp', () => {
 
     await poll(() =>
       expect(term.getBuffer()).toStrictEqual([
-        '                         ',
+        '  some output (7)        ',
         '  some output (8)        ',
         '  some output (9)        ',
         '                         ',
@@ -154,7 +155,8 @@ describe.concurrent('runp', () => {
     await setTimeout();
 
     expect(term.getBuffer(true)).toEqual([
-      '✖ ./test/long... [#.###s]',
+      '                         ',
+      '✕ ./test/long... [#.###s]',
       '                         ',
       '  some output (0)        ',
       '  some output (1)        ',
@@ -187,14 +189,14 @@ describe.concurrent('runp', () => {
 
     await poll(() =>
       expect(term.getBuffer()).toStrictEqual([
-        '▶ task1 ──────────────── ',
+        '                         ',
+        '⯈ task1 ──────────────── ',
         '                         ',
         '  task1 output           ',
         '                         ',
-        '▶ task2 ──────────────── ',
+        '⯈ task2 ──────────────── ',
         '                         ',
         '  task2 output           ',
-        '                         ',
         '                         ',
         '                         ',
       ]),
@@ -251,26 +253,26 @@ describe.concurrent('runp', () => {
 
     expect(term.getBuffer()).toStrictEqual([
       'first line               ',
-      '✔ echo short [#.###s]    ',
+      '                         ',
+      '✓ echo short [#.###s]    ',
       '                         ',
       '  short                  ',
       '                         ',
-      '✔ echo someth... [#.###s]',
+      '✓ echo someth... [#.###s]',
       '                         ',
       '  something very very    ',
       '  very long              ',
       '                         ',
-      '✔ ./test/succ... [#.###s]',
+      '✓ ./test/succ... [#.###s]',
       '                         ',
       '  line2                  ',
       '  line3                  ',
       '                         ',
-      '✖ ./test/fail... [#.###s]',
+      '✕ ./test/fail... [#.###s]',
       '                         ',
       '  line1                  ',
       '  line2                  ',
       '  line3                  ',
-      '                         ',
       '                         ',
       '                         ',
       '                         ',

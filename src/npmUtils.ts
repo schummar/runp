@@ -26,33 +26,30 @@ export async function loadNpmWorkspaceScripts(cwd: string): Promise<{ scriptName
   const scripts = new Array<{ scriptName: string; scriptCommand: (args: string[]) => string[] }>();
 
   const scriptCommandPrefix = {
-    npm: (workspaceName: string, workspacePath: string, script: string) => (args: string[]) =>
-      [
-        'npm',
-        ...(workspacePath === workspaceRoot ? [] : [`--workspace=${workspaceName}`]),
-        'run',
-        '--silent',
-        script,
-        ...(args.length ? ['--', ...args] : []),
-      ],
-    pnpm: (workspace: string, workspacePath: string, script: string) => (args: string[]) =>
-      [
-        'pnpm',
-        ...(workspacePath === workspaceRoot ? [] : [`--filter=${workspace}`]),
-        'run',
-        '--silent',
-        script,
-        ...(args.length ? ['--', ...args] : []),
-      ],
-    yarn: (workspace: string, workspacePath: string, script: string) => (args: string[]) =>
-      [
-        'yarn',
-        ...(workspacePath === workspaceRoot ? [] : ['workspace', workspace]),
-        'run',
-        '--silent',
-        script,
-        ...(args.length ? ['--', ...args] : []),
-      ],
+    npm: (workspaceName: string, workspacePath: string, script: string) => (args: string[]) => [
+      'npm',
+      ...(workspacePath === workspaceRoot ? [] : [`--workspace=${workspaceName}`]),
+      'run',
+      '--silent',
+      script,
+      ...(args.length ? ['--', ...args] : []),
+    ],
+    pnpm: (workspace: string, workspacePath: string, script: string) => (args: string[]) => [
+      'pnpm',
+      ...(workspacePath === workspaceRoot ? [] : [`--filter=${workspace}`]),
+      'run',
+      '--silent',
+      script,
+      ...(args.length ? ['--', ...args] : []),
+    ],
+    yarn: (workspace: string, workspacePath: string, script: string) => (args: string[]) => [
+      'yarn',
+      ...(workspacePath === workspaceRoot ? [] : ['workspace', workspace]),
+      'run',
+      '--silent',
+      script,
+      ...(args.length ? ['--', ...args] : []),
+    ],
   }[npmRunner];
 
   for (const workspacePath of workspaces) {

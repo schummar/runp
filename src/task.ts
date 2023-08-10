@@ -1,6 +1,6 @@
 import { spawn } from 'child_process';
 import { Queue } from 'schummar-queue';
-import { Store } from 'schummar-state/react';
+import { createStore, Store } from 'cross-state';
 import { RunpCommand, RUNP_TASK_DELEGATE, RUNP_TASK_V } from '.';
 
 export interface Task {
@@ -22,7 +22,7 @@ export interface TaskState {
 export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue()): Task {
   const { name, cmd, args = [], env = process.env, cwd, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
-  const state = new Store<TaskState>({
+  const state = createStore<TaskState>({
     status: 'pending',
     title: (name ?? fullCmd) + (cwd && cwd !== process.cwd() ? ` (${cwd})` : ''),
     rawOutput: '',
@@ -30,18 +30,17 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue
   });
 
   const result = new Promise<string>((resolve, reject) => {
-    const cancel = state.subscribe(
-      (x) => x.status,
-      (status) => {
+    const cancel = state
+      .map((x) => x.status)
+      .subscribe((status) => {
         if (status === 'done') {
-          resolve(state.getState().output);
+          resolve(state.get().output);
           setTimeout(() => cancel());
         } else if (status === 'error' || status === 'dependencyError') {
-          reject(state.getState().output);
+          reject(state.get().output);
           setTimeout(() => cancel());
         }
-      },
-    );
+      });
   });
   result.catch(() => undefined);
 
@@ -58,51 +57,34 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue
     try {
       await Promise.all(dependencies.map((j) => j.result));
     } catch {
-      state.update((state) => {
-        state.status = 'dependencyError';
-      });
-
+      state.set('status', 'dependencyError');
       return;
     }
 
     const start = performance.now();
-    state.update((state) => {
-      state.status = 'inProgress';
-    });
+    state.set('status', 'inProgress');
 
     if (cmd instanceof Function) {
       try {
         await cmd({
           updateStatus(status) {
-            state.update((state) => {
-              state.statusString = status;
-            });
+            state.set('statusString', status);
           },
           updateTitle(title) {
-            state.update((state) => {
-              state.title = title;
-            });
+            state.set('title', title);
           },
           updateOutput(output) {
-            state.update((state) => {
-              state.rawOutput += output;
-              state.output = output;
-            });
+            state.set('rawOutput', (rawOutput) => rawOutput + output);
+            state.set('output', output);
           },
         });
 
-        state.update((state) => {
-          state.status = 'done';
-        });
+        state.set('status', 'done');
       } catch (error) {
-        state.update((state) => {
-          state.status = 'error';
-          state.output = String(error);
-        });
+        state.set('status', 'error');
+        state.set('output', String(error));
       } finally {
-        state.update((state) => {
-          state.time = performance.now() - start;
-        });
+        state.set('time', performance.now() - start);
       }
 
       return;
@@ -123,16 +105,14 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue
     });
 
     const append = (data: any) => {
-      state.update((state) => {
-        state.rawOutput += data.toString();
-        state.output = state.rawOutput.includes(RUNP_TASK_DELEGATE) ? '' : state.rawOutput;
-      });
+      state.set('rawOutput', (rawOutput) => rawOutput + data.toString());
+      state.set('output', state.get().rawOutput.includes(RUNP_TASK_DELEGATE) ? '' : state.get().rawOutput);
     };
     subProcess.stdout.on('data', append);
     subProcess.stderr.on('data', append);
 
     subProcess.on('close', async (code) => {
-      const { rawOutput } = state.getState();
+      const { rawOutput } = state.get();
 
       const delegationStart = rawOutput.indexOf(RUNP_TASK_DELEGATE);
       const delegationEnd = rawOutput.indexOf(RUNP_TASK_DELEGATE, delegationStart + 1);
@@ -141,13 +121,11 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue
         const commands = JSON.parse(json) as RunpCommand[];
         const tasks: Task[] = commands.map((command) => task(command, () => tasks));
 
-        state.update((state) => {
-          state.output = '';
-          state.subTasks = tasks;
-        });
+        state.set('output', '');
+        state.set('subTasks', tasks);
       }
 
-      const { subTasks } = state.getState();
+      const { subTasks } = state.get();
       let hasErrors = !!code;
 
       if (subTasks) {
@@ -155,17 +133,11 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue
         hasErrors = errors.some(Boolean);
       }
 
-      state.update((state) => {
-        state.status = hasErrors ? 'error' : 'done';
-        state.time = performance.now() - start;
-      });
+      state.set('status', hasErrors ? 'error' : 'done');
+      state.set('time', performance.now() - start);
     });
 
-    subProcess.on('error', (error) =>
-      state.update((state) => {
-        state.output = String(error);
-      }),
-    );
+    subProcess.on('error', (error) => state.set('output', String(error)));
 
     await result.catch(() => undefined);
   });

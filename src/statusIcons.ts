@@ -1,8 +1,8 @@
 export const statusIcons = {
-  done: '✔',
-  error: '✖',
+  done: '✓',
+  error: '✕',
   dependencyError: '↳',
   pending: '↳',
-  forever: '▶',
+  forever: '⯈',
   inProgress: null,
 };

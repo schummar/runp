@@ -1,18 +1,53 @@
 import { Paragraph, Text } from '@schummar/react-terminal';
-import { useStoreState } from 'schummar-state/react';
+import { useStore } from 'cross-state/react';
+import { useEffect } from 'react';
 import { statusIcons } from '../statusIcons';
 import { Task } from '../task';
+import { WriteLineGrouped } from './renderTaskList';
 import { Spinner } from './spinner';
 
-export function TaskListEntry({ command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity }, state }: Task) {
-  const status = useStoreState(state, (x) => x.status);
-  const statusString = useStoreState(state, (x) => x.statusString);
-  const title = useStoreState(state, (x) => x.title);
-  const time = useStoreState(state, (x) => x.time);
-  const output = useStoreState(state, (x) => x.output.trim());
-  const subTasks = useStoreState(state, (x) => x.subTasks);
+export function TaskListEntry({
+  command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity, inlineOutput },
+  state,
+  writeLine,
+}: Task & { writeLine: WriteLineGrouped }) {
+  const status = useStore(state, (x) => x.status);
+  const statusString = useStore(state, (x) => x.statusString);
+  const title = useStore(state, (x) => x.title);
+  const time = useStore(state, (x) => x.time);
+  const subTasks = useStore(state, (x) => x.subTasks);
 
-  const showOutput = (status === 'error' || status === 'inProgress' || keepOutput) && output.length > 0;
+  const output = useStore(state, (x) => {
+    if (inlineOutput) {
+      return undefined;
+    }
+
+    const output = x.output.trim();
+
+    if ((status === 'error' || status === 'inProgress' || keepOutput) && output.length > 0) {
+      return output;
+    }
+
+    return undefined;
+  });
+
+  useEffect(() => {
+    if (!inlineOutput) {
+      return;
+    }
+
+    let offset = 0;
+
+    return state
+      .map((x) => x.output)
+      .subscribe((output) => {
+        const newOutput = output.slice(offset);
+        if (newOutput) {
+          writeLine(newOutput, state);
+        }
+        offset = output.length;
+      });
+  }, [inlineOutput, state]);
 
   return (
     <Paragraph>
@@ -49,7 +84,7 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength, di
         </>
       )}
 
-      {showOutput && (
+      {output && (
         <Paragraph margin={[1, 0, 1, 2]} maxLines={status === 'error' ? undefined : outputLength}>
           {output}
         </Paragraph>
@@ -57,7 +92,7 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength, di
 
       {subTasks?.map((task, index) => (
         <Paragraph key={index} margin={[0, 0, 0, 2]}>
-          <TaskListEntry {...task} />
+          <TaskListEntry writeLine={writeLine} {...task} />
         </Paragraph>
       ))}
     </Paragraph>

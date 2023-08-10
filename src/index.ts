@@ -22,6 +22,7 @@ export interface RunpCommonOptions {
   forever?: boolean;
   /** Display time in status line if the task took more than the given ms */
   displayTimeOver?: number;
+  inlineOutput?: boolean;
 }
 
 export interface RunpCommand extends RunpCommonOptions {
@@ -108,14 +109,14 @@ export async function runp(options: RunpOptions) {
             ({
               result: 'success',
               output,
-            } as const),
+            }) as const,
         )
         .catch(
           (output: string) =>
             ({
               result: 'error',
               output,
-            } as const),
+            }) as const,
         ),
     ),
   );
@@ -206,6 +207,7 @@ export async function resolveCommands(options: RunpOptions) {
       keepOutput: command.keepOutput ?? keepOutput ?? options.keepOutput,
       forever: command.forever ?? forever ?? options.forever,
       displayTimeOver: command.displayTimeOver ?? options.displayTimeOver,
+      inlineOutput: command.inlineOutput ?? options.inlineOutput,
       env: command.env ?? process.env,
     } satisfies RunpCommand;
 
@@ -308,7 +310,6 @@ function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['tar
   [`exit`, `SIGINT`, `SIGUSR1`, `SIGUSR2`, `SIGTERM`].forEach((eventType) => {
     process.on(eventType, () => {
       stop();
-      // process.exit();
     });
   });
 
@@ -327,8 +328,8 @@ async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
     state,
   } of tasks) {
     await result.catch(() => undefined);
-    const { status, statusString = statusIcons[status], title, subTasks, time } = state.getState();
-    const output = state.getState().output.trim();
+    const { status, statusString = statusIcons[status], title, subTasks, time } = state.get();
+    const output = state.get().output.trim();
     const showOutput = (status === 'error' || keepOutput) && output.length > 0;
     const timeString = time !== undefined && time >= displayTimeOver ? ` [${formatTime(time)}]` : '';
 

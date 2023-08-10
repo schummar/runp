@@ -47,6 +47,11 @@ const argv = cli({
       type: Number,
       description: `Display time in status line if the task took more than the given ms`,
     },
+    inlineOutput: {
+      alias: 'i',
+      type: Boolean,
+      description: '',
+    },
   },
 
   version: pkg.version,
