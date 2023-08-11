@@ -77,7 +77,7 @@ export function TaskListEntry({
         </>
       )}
 
-      {forever && (
+      {forever && !inlineOutput && (
         <>
           {' '}
           <Text shrink fill="─" />{' '}
