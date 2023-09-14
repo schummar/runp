@@ -22,7 +22,7 @@ export interface RunpCommonOptions {
   forever?: boolean;
   /** Display time in status line if the task took more than the given ms */
   displayTimeOver?: number;
-  inlineOutput?: boolean;
+  linearOutput?: boolean;
 }
 
 export interface RunpCommand extends RunpCommonOptions {
@@ -207,7 +207,7 @@ export async function resolveCommands(options: RunpOptions) {
       keepOutput: command.keepOutput ?? keepOutput ?? options.keepOutput,
       forever: command.forever ?? forever ?? options.forever,
       displayTimeOver: command.displayTimeOver ?? options.displayTimeOver,
-      inlineOutput: command.inlineOutput ?? options.inlineOutput,
+      linearOutput: command.linearOutput ?? options.linearOutput,
       env: command.env ?? process.env,
     } satisfies RunpCommand;
 

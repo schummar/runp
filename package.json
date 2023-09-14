@@ -28,12 +28,12 @@
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "lint": "eslint --cache --cache-location=node_modules/.cache/eslint/.eslintcache --cache-strategy=content --max-warnings=0 src",
-    "build": "tsx src/cli.ts -i build:clean :p build:compile:*",
+    "build": "tsx src/cli.ts build:clean :p build:compile:*",
     "build:clean": "rimraf \"dist/**/*\"",
     "build:compile:types": "tsc",
     "build:compile:index": "NODE_ENV=production esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --sourcemap --minify",
     "build:compile:cli": "esbuild --bundle --platform=node src/cli.ts --outfile=dist/cli.js --sourcemap --minify --external:.",
-    "prepublishOnly": "tsx src/cli.ts -i test lint build :s publint"
+    "prepublishOnly": "tsx src/cli.ts test lint build :s publint"
   },
   "devDependencies": {
     "@schummar/react-terminal": "1.4.7",

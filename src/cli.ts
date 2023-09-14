@@ -47,8 +47,13 @@ const argv = cli({
       type: Number,
       description: `Display time in status line if the task took more than the given ms`,
     },
-    inlineOutput: {
+    linearOutput: {
       alias: 'i',
+      type: Boolean,
+      description: '',
+    },
+    dynamicOutput: {
+      alias: 'd',
       type: Boolean,
       description: '',
     },
@@ -58,10 +63,16 @@ const argv = cli({
 });
 
 (async () => {
-  if (argv.flags.print) {
+  const { linearOutput, dynamicOutput, ...restFlags } = argv.flags;
+  const flags = {
+    ...restFlags,
+    linearOutput: linearOutput || !dynamicOutput,
+  };
+
+  if (flags.print) {
     const tasks = await resolveCommands({
       commands: argv._.commands,
-      ...argv.flags,
+      ...flags,
     });
 
     console.log(tasks);
@@ -70,7 +81,7 @@ const argv = cli({
 
   const results = await runp({
     commands: argv._.commands,
-    ...argv.flags,
+    ...flags,
   });
 
   const hasErrors = results.some(({ result }) => result === 'error');

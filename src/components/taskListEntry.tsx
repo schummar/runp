@@ -7,7 +7,7 @@ import { WriteLineGrouped } from './renderTaskList';
 import { Spinner } from './spinner';
 
 export function TaskListEntry({
-  command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity, inlineOutput },
+  command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity, linearOutput },
   state,
   writeLine,
 }: Task & { writeLine: WriteLineGrouped }) {
@@ -18,7 +18,7 @@ export function TaskListEntry({
   const subTasks = useStore(state, (x) => x.subTasks);
 
   const output = useStore(state, (x) => {
-    if (inlineOutput) {
+    if (linearOutput) {
       return undefined;
     }
 
@@ -32,7 +32,7 @@ export function TaskListEntry({
   });
 
   useEffect(() => {
-    if (!inlineOutput) {
+    if (!linearOutput) {
       return;
     }
 
@@ -47,7 +47,7 @@ export function TaskListEntry({
         }
         offset = output.length;
       });
-  }, [inlineOutput, state]);
+  }, [linearOutput, state]);
 
   return (
     <Paragraph>
@@ -77,7 +77,7 @@ export function TaskListEntry({
         </>
       )}
 
-      {forever && !inlineOutput && (
+      {forever && !linearOutput && (
         <>
           {' '}
           <Text shrink fill="─" />{' '}
