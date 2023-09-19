@@ -212,6 +212,7 @@ describe.concurrent('runp', () => {
       [
         //
         'src/cli.ts',
+        '-d',
         '-k',
         '-n=2',
         'echo short',
