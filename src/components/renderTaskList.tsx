@@ -11,9 +11,9 @@ export function renderTaskList(tasks: Task[], options?: RenderOptions) {
 
   let lastTask: Store<TaskState> | undefined;
 
-  const endLastTask = () => {
-    if (lastTask) {
-      writeLine(`  ${lastTask.get().title} `, {
+  const endTask = (task: Store<TaskState> | undefined) => {
+    if (task) {
+      writeLine(`  ${task.get().title} `, {
         grow: 1,
         shrink: 1,
         ellipsis: true,
@@ -26,7 +26,7 @@ export function renderTaskList(tasks: Task[], options?: RenderOptions) {
 
   const writeLineGrouped: WriteLineGrouped = (text, taskState) => {
     if (taskState !== lastTask) {
-      endLastTask();
+      endTask(lastTask);
 
       writeLine('');
       writeLine(`  ${taskState.get().title} `, {
@@ -43,7 +43,19 @@ export function renderTaskList(tasks: Task[], options?: RenderOptions) {
     writeLine(text, { prefix: chalk.bgWhite(' ') + ' ' });
   };
 
-  Promise.all(tasks.map((task) => task.result.catch(() => undefined))).then(endLastTask);
+  Promise.all(
+    tasks.map((task) =>
+      task.result
+        .catch(() => undefined)
+        .finally(() => {
+          if (task.state === lastTask) {
+            endTask(task.state);
+          }
+        }),
+    ),
+  ).then(() => {
+    endTask(lastTask);
+  });
 
   return render(<TaskList tasks={tasks} writeLine={writeLineGrouped} />);
 }
