@@ -72,8 +72,8 @@
     "cli.js"
   ],
   "volta": {
-    "node": "18.14.2",
-    "pnpm": "7.28.0"
+    "node": "20.12.1",
+    "pnpm": "8.15.6"
   },
   "release": {
     "branches": [
