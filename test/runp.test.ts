@@ -27,14 +27,13 @@ class TestTerminal implements Target {
 
     return Array(buffer.length - offset)
       .fill(0)
-      .map(
-        (x, i) =>
-          buffer
-            .getLine(offset + i)
-            ?.translateToString()
-            .replace(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '⠋')
-            .replace(/\[(.*)s\]/g, (x, y) => `[${''.padEnd(y.length - 4, '#')}.###s]`)
-            .replace(/\xA0/g, ' '),
+      .map((x, i) =>
+        buffer
+          .getLine(offset + i)
+          ?.translateToString()
+          .replace(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '⠋')
+          .replace(/\[(.*)s\]/g, (x, y) => `[${''.padEnd(y.length - 4, '#')}.###s]`)
+          .replace(/\xA0/g, ' '),
       );
   };
 }
