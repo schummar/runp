@@ -63,7 +63,7 @@
     "semantic-release": "23.0.7",
     "tsx": "4.7.2",
     "typescript": "5.4.4",
-    "vite": "5.2.8",
+    "vite": "5.2.14",
     "vitest": "1.4.0",
     "xterm-headless": "5.2.1"
   },
