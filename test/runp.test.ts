@@ -283,8 +283,8 @@ describe.concurrent('runp', () => {
     ]);
   }, 10_000);
 
-  describe.only('parallel execution', () => {
-    test.only('api', async () => {
+  describe('parallel execution', () => {
+    test('api', async () => {
       const term = new TestTerminal({ cols: 25, rows: 100 });
 
       const finished = runp({
@@ -304,7 +304,7 @@ describe.concurrent('runp', () => {
     });
   });
 
-  describe.only('sequential execution', () => {
+  describe('sequential execution', () => {
     test('api', async () => {
       const term = new TestTerminal({ cols: 25, rows: 100 });
 
