@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { Queue } from 'schummar-queue';
+import { createQueue } from 'schummar-queue';
 import { createStore, Store } from 'cross-state';
 import { RunpCommand, RUNP_TASK_DELEGATE, RUNP_TASK_V } from '.';
 
@@ -19,7 +19,7 @@ export interface TaskState {
   subTasks?: Task[];
 }
 
-export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue()): Task {
+export function task(command: RunpCommand, allTasks: () => Task[], q = createQueue()): Task {
   const { name, cmd, args = [], env = process.env, cwd, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
   const cwdDisplay =

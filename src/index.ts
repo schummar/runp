@@ -2,7 +2,7 @@ import { RenderOptions } from '@schummar/react-terminal';
 import multimatch from 'multimatch';
 import { resolve } from 'path';
 import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
-import { Queue } from 'schummar-queue';
+import { createQueue } from 'schummar-queue';
 import { renderTaskList } from './components/renderTaskList';
 import { loadNpmWorkspaceScripts } from './npmUtils';
 import { statusIcons } from './statusIcons';
@@ -91,7 +91,7 @@ export async function runp(options: RunpOptions) {
     process.exit();
   }
 
-  const q = new Queue({ parallel: options.parallelTasks ?? 5 });
+  const q = createQueue({ parallel: options.parallelTasks ?? 5 });
   const tasks: Task[] = resolvedCommands.map((cmd) => task(cmd, () => tasks, q));
 
   let stop;
