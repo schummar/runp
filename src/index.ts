@@ -2,12 +2,12 @@ import { RenderOptions } from '@schummar/react-terminal';
 import multimatch from 'multimatch';
 import { resolve } from 'path';
 import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
+import { Queue } from 'schummar-queue';
 import { renderTaskList } from './components/renderTaskList';
 import { loadNpmWorkspaceScripts } from './npmUtils';
 import { statusIcons } from './statusIcons';
 import { Task, task } from './task';
 import { formatTime, indent } from './util';
-import { Queue } from 'schummar-queue';
 
 export interface RunpCommonOptions {
   /** Maximum number of lines for each command output
@@ -130,21 +130,29 @@ export async function resolveCommands(options: RunpOptions) {
   const explicitIds = new Set(
     options.commands.map((cmd) => (typeof cmd === 'object' && cmd !== null && 'id' in cmd ? cmd?.id : undefined)).filter(Boolean),
   );
-  const previousIds = new Set<string | number>();
-  const depToIds = new Map<string | number, Array<string | number>>();
 
-  let serial = false,
+  let sequential = false,
     forever = undefined as boolean | undefined,
     keepOutput = undefined as boolean | undefined,
     outputLength = undefined as number | undefined,
     freeId = 0,
-    deps = new Array<string | number>();
+    currentGroup: (string | number)[] = [],
+    previousGroup: (string | number)[] = [];
 
   function getFreeId() {
     while (explicitIds.has(freeId)) {
       freeId++;
     }
     return freeId++;
+  }
+
+  function flushGroup() {
+    if (!currentGroup.length) {
+      return;
+    }
+
+    previousGroup = [...new Set(currentGroup)].sort();
+    currentGroup = [];
   }
 
   const npmScriptsToResolve = new Set<string>();
@@ -171,11 +179,11 @@ export async function resolveCommands(options: RunpOptions) {
     if (typeof command === 'string' && command.match(`^:(${switchRegexp.source})+$`)) {
       for (const [sw] of command.matchAll(switchRegexp)) {
         if (sw === 's') {
-          serial = true;
-          deps = [...previousIds];
+          sequential = true;
+          flushGroup();
         } else if (sw === 'p') {
-          serial = false;
-          deps = [...previousIds];
+          sequential = false;
+          flushGroup();
         } else if (sw?.startsWith('f')) {
           forever = !sw.endsWith('false');
         } else if (sw?.startsWith('k')) {
@@ -197,19 +205,19 @@ export async function resolveCommands(options: RunpOptions) {
       command = { cmd: command[0], args: command.slice(1) };
     }
 
-    const cleanCommand = {
+    const cleanCommand: RunpCommand = {
       ...command,
       id: command.id ?? getFreeId(),
       args: command.args?.filter((x): x is string => typeof x === 'string') ?? [],
       cwd: resolve(command.cwd ?? '.'),
-      dependsOn: Array.isArray(command.dependsOn) ? command.dependsOn : command.dependsOn !== undefined ? [command.dependsOn] : [...deps],
+      dependsOn: [],
       outputLength: command.outputLength ?? outputLength ?? options.outputLength ?? DEFAULT_OUTPUT_LENGTH,
       keepOutput: command.keepOutput ?? keepOutput ?? options.keepOutput,
       forever: command.forever ?? forever ?? options.forever,
       displayTimeOver: command.displayTimeOver ?? options.displayTimeOver,
       linearOutput: command.linearOutput ?? options.linearOutput,
       env: command.env ?? process.env,
-    } satisfies RunpCommand;
+    };
 
     const cmd = cleanCommand.cmd;
 
@@ -238,28 +246,22 @@ export async function resolveCommands(options: RunpOptions) {
 
     if (matchingNpmScripts?.length) {
       result = matchingNpmScripts;
-      depToIds.set(
-        cleanCommand.id,
-        matchingNpmScripts.map((x) => x.id),
-      );
     }
 
     for (const resolvedCommand of result) {
-      previousIds.add(resolvedCommand.id);
+      resolvedCommand.dependsOn = Array.isArray(command.dependsOn)
+        ? command.dependsOn
+        : command.dependsOn !== undefined
+          ? [command.dependsOn]
+          : previousGroup;
 
-      if (serial) {
-        deps.push(resolvedCommand.id);
+      currentGroup.push(resolvedCommand.id);
+      if (sequential) {
+        flushGroup();
       }
     }
 
     resolvedCommands.push(...result);
-  }
-
-  for (const command of resolvedCommands) {
-    command.dependsOn = command.dependsOn.flatMap((depId) => {
-      const ids = depToIds.get(depId);
-      return ids ?? depId;
-    });
   }
 
   const sortedCommands = topoSort(resolvedCommands);

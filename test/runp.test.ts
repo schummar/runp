@@ -8,18 +8,22 @@ import pty from 'node-pty';
 type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 
 class TestTerminal implements Target {
-  // options = { cols: 25, rows: 22 };
-  constructor(private options: { cols: number; rows: number }) {}
+  term: Terminal;
+  write: Target['write'];
+  columns: number;
+  rows: number;
 
-  term = new Terminal({
-    cols: this.options.cols,
-    rows: this.options.rows,
-    allowProposedApi: true,
-  });
+  constructor(private options: { cols: number; rows: number }) {
+    this.term = new Terminal({
+      cols: this.options.cols,
+      rows: this.options.rows,
+      allowProposedApi: true,
+    });
 
-  write = this.term.write.bind(this.term) as Target['write'];
-  columns = this.options.cols;
-  rows = this.options.rows;
+    this.write = this.term.write.bind(this.term) as Target['write'];
+    this.columns = this.options.cols;
+    this.rows = this.options.rows;
+  }
 
   getBuffer = (all = false) => {
     const buffer = this.term.buffer.active;
@@ -278,4 +282,46 @@ describe.concurrent('runp', () => {
       '                         ',
     ]);
   }, 10_000);
+
+  describe.only('parallel execution', () => {
+    test.only('api', async () => {
+      const term = new TestTerminal({ cols: 25, rows: 100 });
+
+      const finished = runp({
+        commands: [{ cmd: 'task:*', cwd: 'test' }],
+        target: term,
+        linearOutput: true,
+      });
+
+      await finished;
+      await setTimeout();
+
+      const text = term.getBuffer().join('\n');
+      const maxStartIndex = Math.max(...['start 1', 'start 2', 'start 3'].map((s) => text.indexOf(s)));
+      const minDoneIndex = Math.min(...['done 1', 'done 2', 'done 3'].map((s) => text.indexOf(s)));
+
+      expect(minDoneIndex).toBeGreaterThan(maxStartIndex);
+    });
+  });
+
+  describe.only('sequential execution', () => {
+    test('api', async () => {
+      const term = new TestTerminal({ cols: 25, rows: 100 });
+
+      const finished = runp({
+        commands: [':s', { cmd: 'task:*', cwd: 'test' }],
+        target: term,
+        linearOutput: true,
+      });
+
+      await finished;
+      await setTimeout();
+
+      const text = term.getBuffer().join('\n');
+      const events = ['start 1', 'done 1', 'start 2', 'done 2', 'start 3', 'done 3'];
+      const eventOrder = [...events].sort((a, b) => text.indexOf(a) - text.indexOf(b));
+
+      expect(eventOrder).toStrictEqual(events);
+    });
+  });
 });

@@ -52,7 +52,7 @@ Each parameter can be a program, npm script, a flag or a switch. Arguments for p
 - `"build:*"` executes all script matching this glob (see [minimatch](https://github.com/isaacs/minimatch))  
   Mind the quotes, otherwise your shell will try to resolve the wildcard!
 
-- `:s` for "serial": remaining commands will be execute after the previous and in series
+- `:s` for "sequential": remaining commands will be execute after the previous and in series
 
 - `"rm -rf .cache"` deletes the .cache folder
 
@@ -101,7 +101,7 @@ Usually a command's output will disappear after is has successfully executed. Wh
 
 Defines how many lines of output will be visible at maximum for each command.
 
-## Option: Parallel and serial execution
+## Option: Parallel and sequential execution
 
 **Switches** `:p`, `:s` apply to remaining commands
 

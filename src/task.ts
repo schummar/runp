@@ -22,9 +22,11 @@ export interface TaskState {
 export function task(command: RunpCommand, allTasks: () => Task[], q = new Queue()): Task {
   const { name, cmd, args = [], env = process.env, cwd, dependsOn } = command;
   const fullCmd = [cmd, ...args].join(' ');
+  const cwdDisplay =
+    cwd && cwd !== process.cwd() ? (cwd.startsWith(process.cwd()) ? ` (./${cwd.slice(process.cwd().length + 1)})` : ` (${cwd})`) : '';
   const state = createStore<TaskState>({
     status: 'pending',
-    title: (name ?? fullCmd) + (cwd && cwd !== process.cwd() ? ` (${cwd})` : ''),
+    title: (name ?? fullCmd) + cwdDisplay,
     rawOutput: '',
     output: '',
   });
