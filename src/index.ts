@@ -1,5 +1,4 @@
 import { RenderOptions } from '@schummar/react-terminal';
-import multimatch from 'multimatch';
 import { resolve } from 'path';
 import { splitSpacesExcludeQuotes } from 'quoted-string-space-split';
 import { createQueue } from 'schummar-queue';
@@ -8,6 +7,7 @@ import { loadNpmWorkspaceScripts } from './npmUtils';
 import { statusIcons } from './statusIcons';
 import { Task, task } from './task';
 import { formatTime, indent } from './util';
+import wildcardMatch from './wildcardMatch';
 
 export interface RunpCommonOptions {
   /** Maximum number of lines for each command output
@@ -226,7 +226,7 @@ export async function resolveCommands(options: RunpOptions) {
       typeof cmd !== 'string'
         ? []
         : npmScripts.get(cleanCommand.cwd)?.flatMap(({ scriptName, scriptCommand }) => {
-            if (multimatch(scriptName, cmd).length === 0) {
+            if (!wildcardMatch(scriptName, cmd)) {
               return [];
             }
 

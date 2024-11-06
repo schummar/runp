@@ -2,6 +2,7 @@
   "scripts": {
     "task:1": "echo start 1 && sleep 1 && echo done 1",
     "task:2": "echo start 2 && sleep 1 && echo done 2",
-    "task:3": "echo start 3 && sleep 1 && echo done 3"
+    "task:3": "echo start 3 && sleep 1 && echo done 3",
+    "@complex/name:with:colons": "echo start complex && sleep 1 && echo done complex"
   }
 }

@@ -1,9 +1,9 @@
 import { RenderOptions } from '@schummar/react-terminal';
+import pty from 'node-pty';
 import { setTimeout } from 'timers/promises';
 import { describe, expect, test } from 'vitest';
 import { Terminal } from 'xterm-headless';
-import { runp } from '../src';
-import pty from 'node-pty';
+import { resolveCommands, runp } from '../src';
 
 type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 
@@ -322,6 +322,32 @@ describe.concurrent('runp', () => {
       const eventOrder = [...events].sort((a, b) => text.indexOf(a) - text.indexOf(b));
 
       expect(eventOrder).toStrictEqual(events);
+    });
+  });
+
+  describe('script matching', async () => {
+    test('prefix', async () => {
+      const prefix = await resolveCommands({
+        commands: [{ cmd: '@complex/name:*', cwd: 'test' }],
+      });
+
+      expect(prefix.map((x) => [x.cmd, ...x.args].join(' '))).toStrictEqual(['pnpm run --silent @complex/name:with:colons']);
+    });
+
+    test('suffix', async () => {
+      const suffix = await resolveCommands({
+        commands: [{ cmd: '*:with:colons', cwd: 'test' }],
+      });
+
+      expect(suffix.map((x) => [x.cmd, ...x.args].join(' '))).toStrictEqual(['pnpm run --silent @complex/name:with:colons']);
+    });
+
+    test('wildcard matches empty', async () => {
+      const exact = await resolveCommands({
+        commands: [{ cmd: '*@complex/name:with:colons*', cwd: 'test' }],
+      });
+
+      expect(exact.map((x) => [x.cmd, ...x.args].join(' '))).toStrictEqual(['pnpm run --silent @complex/name:with:colons']);
     });
   });
 });
