@@ -24,7 +24,6 @@ const argv = cli({
       alias: 'k',
       type: Boolean,
       description: 'Keep output of successful commands visible',
-      default: false,
     },
     forever: {
       alias: 'f',
@@ -63,10 +62,11 @@ const argv = cli({
 });
 
 (async () => {
-  const { linearOutput, dynamicOutput, ...restFlags } = argv.flags;
+  const { dynamicOutput, linearOutput = !dynamicOutput, ...restFlags } = argv.flags;
   const flags = {
     ...restFlags,
-    linearOutput: linearOutput || !dynamicOutput,
+    linearOutput,
+    keepOutput: restFlags.keepOutput ?? linearOutput,
   };
 
   if (flags.print) {
