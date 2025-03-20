@@ -71,9 +71,9 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
             (Array.isArray(dependsOn) ? dependsOn.includes(j.command.id) : dependsOn === j.command.id),
         );
 
-        try {
-          await Promise.all(dependencies.map((j) => j.result));
-        } catch {
+        const depResults = await Promise.all(dependencies.map((j) => j.result));
+
+        if (depResults.some((x) => x.result === 'error')) {
           state.set('status', 'dependencyError');
           return;
         }
