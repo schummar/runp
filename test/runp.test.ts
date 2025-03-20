@@ -1,62 +1,8 @@
-import { RenderOptions } from '@schummar/react-terminal';
 import pty from 'node-pty';
 import { setTimeout } from 'node:timers/promises';
 import { describe, expect, test } from 'vitest';
-import { Terminal } from 'xterm-headless';
 import { resolveCommands, runp } from '../src';
-
-type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
-
-class TestTerminal implements Target {
-  term: Terminal;
-  write: Target['write'];
-  columns: number;
-  rows: number;
-
-  constructor(private options: { cols: number; rows: number }) {
-    this.term = new Terminal({
-      cols: this.options.cols,
-      rows: this.options.rows,
-      allowProposedApi: true,
-    });
-
-    this.write = this.term.write.bind(this.term) as Target['write'];
-    this.columns = this.options.cols;
-    this.rows = this.options.rows;
-  }
-
-  getBuffer = (all = false) => {
-    const buffer = this.term.buffer.active;
-    const offset = all ? 0 : buffer.baseY;
-
-    return Array(buffer.length - offset)
-      .fill(0)
-      .map((x, i) =>
-        buffer
-          .getLine(offset + i)
-          ?.translateToString()
-          .replace(/[⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏]/g, '⠋')
-          .replace(/\[(.*)s\]/g, (x, y) => `[${''.padEnd(y.length - 4, '#')}.###s]`)
-          .replace(/\xA0/g, ' '),
-      );
-  };
-}
-
-const poll = async (assertion: () => void, max = 9_000) => {
-  const start = performance.now();
-
-  for (;;) {
-    try {
-      assertion();
-      return;
-    } catch (e) {
-      if (performance.now() - start > max) {
-        throw e;
-      }
-      await setTimeout(10);
-    }
-  }
-};
+import { poll, TestTerminal } from './_helperts';
 
 describe.concurrent('runp', () => {
   test('node api', async () => {
@@ -348,50 +294,6 @@ describe.concurrent('runp', () => {
       });
 
       expect(exact.map((x) => [x.cmd, ...x.args].join(' '))).toStrictEqual(['pnpm run --silent @complex/name:with:colons']);
-    });
-  });
-
-  describe('linear outout', () => {
-    test('updating output', async () => {
-      const term = new TestTerminal({ cols: 25, rows: 15 });
-
-      const [result] = await runp({
-        commands: [
-          {
-            name: 'command',
-            async cmd({ updateOutput }) {
-              updateOutput('line 1');
-              updateOutput('line 2');
-              await setTimeout(1000);
-              updateOutput('line 3');
-            },
-          },
-        ],
-        target: term,
-        linearOutput: true,
-      });
-
-      await poll(
-        () =>
-          expect(term.getBuffer()).toEqual([
-            '                         ',
-            '-- [command] ->          ',
-            '                         ',
-            'line 1                   ',
-            'line 2                   ',
-            'line 3                   ',
-            '                         ',
-            '<- [command] --          ',
-            '                         ',
-            '✓ command [#.###s]       ',
-            '                         ',
-            '                         ',
-            '                         ',
-            '                         ',
-            '                         ',
-          ]),
-        1000,
-      );
     });
   });
 });

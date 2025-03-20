@@ -101,6 +101,7 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
           } catch (error) {
             state.set('status', 'error');
             state.set('output', String(error));
+            writeLine(String(error), thisTask);
           } finally {
             state.set('time', performance.now() - start);
           }
@@ -159,7 +160,10 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
           state.set('time', performance.now() - start);
         });
 
-        subProcess.on('error', (error) => state.set('output', String(error)));
+        subProcess.on('error', (error) => {
+          state.set('output', String(error));
+          writeLine(String(error), thisTask);
+        });
       });
 
       return result;

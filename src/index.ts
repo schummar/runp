@@ -108,6 +108,7 @@ export async function runp<const TCommands extends Commands = Commands>(
   }
 
   const results = await Promise.all(tasks.map((task) => task.result));
+  await new Promise<void>((resolve) => setTimeout(resolve));
   stop?.();
   return results as { [K in keyof TCommands]: RunpResult };
 }
