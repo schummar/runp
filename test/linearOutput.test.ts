@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises';
 import { describe, expect, test } from 'vitest';
 import { runp } from '../src';
-import { poll, TestTerminal } from './_helperts';
+import { poll, TestTerminal } from './_helpers';
 
 describe('linear outout', () => {
   test('updating output', async () => {

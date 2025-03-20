@@ -2,7 +2,7 @@ import pty from 'node-pty';
 import { setTimeout } from 'node:timers/promises';
 import { describe, expect, test } from 'vitest';
 import { resolveCommands, runp } from '../src';
-import { poll, TestTerminal } from './_helperts';
+import { poll, TestTerminal } from './_helpers';
 
 describe.concurrent('runp', () => {
   test('node api', async () => {

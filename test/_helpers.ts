@@ -1,6 +1,6 @@
 import type { RenderOptions } from '@schummar/react-terminal';
 import { setTimeout } from 'node:timers/promises';
-import { Terminal } from 'xterm-headless';
+import { Terminal } from '@xterm/headless';
 
 export type Target = RenderOptions['target'] extends infer T | undefined ? T : never;
 
