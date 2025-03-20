@@ -8,6 +8,7 @@ export default defineConfig({
     pool: 'forks',
     env: {
       RUNP: '',
+      RUNP_PACKAGE_MANAGER: 'pnpm',
     },
   },
 });

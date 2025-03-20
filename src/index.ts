@@ -6,6 +6,7 @@ import { renderTaskList } from './components/renderTaskList';
 import { loadNpmWorkspaceScripts } from './npmUtils';
 import { statusIcons } from './statusIcons';
 import { Task, task } from './task';
+import { trackLinearOutput } from './trackLinearOutput';
 import { formatTime, indent } from './util';
 import wildcardMatch from './wildcardMatch';
 
@@ -58,9 +59,12 @@ export interface RunpCommandRaw extends Omit<Partial<RunpCommand>, 'args' | 'dep
   dependsOn?: string | number | Array<string | number>;
 }
 
-export interface RunpOptions extends RunpCommonOptions {
+type Commands = (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
+export type RunpResult = { result: 'success'; output: string } | { result: 'error'; output: string };
+
+export interface RunpOptions<TCommands extends Commands = Commands> extends RunpCommonOptions {
   /** A list of command to execute in parallel */
-  commands: (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
+  commands: TCommands;
   /** Maximum number of parallel tasks */
   parallelTasks?: number;
   target?: RenderOptions['target'];
@@ -72,7 +76,9 @@ export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}__`;
 
 const switchRegexp = /s|p|f(=(true|false))?|k(=(true|false))?|n=\d+/g;
 
-export async function runp(options: RunpOptions) {
+export async function runp<const TCommands extends Commands = Commands>(
+  options: RunpOptions<TCommands>,
+): Promise<{ [K in keyof TCommands]: RunpResult }> {
   const resolvedCommands = await resolveCommands(options);
 
   if (process.env.RUNP === RUNP_TASK_V) {
@@ -98,32 +104,12 @@ export async function runp(options: RunpOptions) {
   if (process.stdout.isTTY || options.target) {
     stop = renderTTY(tasks, options.target);
   } else {
-    await renderNonTTY(tasks);
+    stop = await renderNonTTY(tasks);
   }
 
-  const results = await Promise.all(
-    tasks.map((task) =>
-      task.result
-        .then(
-          (output) =>
-            ({
-              result: 'success',
-              output,
-            }) as const,
-        )
-        .catch(
-          (output: string) =>
-            ({
-              result: 'error',
-              output,
-            }) as const,
-        ),
-    ),
-  );
-
+  const results = await Promise.all(tasks.map((task) => task.result));
   stop?.();
-
-  return results;
+  return results as { [K in keyof TCommands]: RunpResult };
 }
 
 export async function resolveCommands(options: RunpOptions) {
@@ -324,15 +310,14 @@ function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['tar
 }
 
 async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
-  for (const {
-    command: { keepOutput, displayTimeOver = -Infinity },
-    result,
-    state,
-  } of tasks) {
-    await result.catch(() => undefined);
+  trackLinearOutput(tasks, (line: string) => console.log(line));
+
+  for (const { command, result, state } of tasks) {
+    const { linearOutput, keepOutput, displayTimeOver = -Infinity } = command;
+    await result;
     const { status, statusString = statusIcons[status], title, subTasks, time } = state.get();
     const output = state.get().output.trim();
-    const showOutput = (status === 'error' || keepOutput) && output.length > 0;
+    const showOutput = !linearOutput && (status === 'error' || keepOutput) && output.length > 0;
     const timeString = time !== undefined && time >= displayTimeOver ? ` [${formatTime(time)}]` : '';
 
     console.info(indent(`${statusString} ${title}${timeString}`, margin));

@@ -33,8 +33,8 @@ devDependencies:
     specifier: 1.3.2
     version: 1.3.2
   cross-state:
-    specifier: 0.41.3
-    version: 0.41.3(@types/react@18.3.12)(react@18.3.1)
+    specifier: 0.48.0
+    version: 0.48.0(@types/react@18.3.12)(react@18.3.1)
   esbuild:
     specifier: 0.24.0
     version: 0.24.0
@@ -2074,8 +2074,8 @@ packages:
       which: 2.0.2
     dev: true
 
-  /cross-state@0.41.3(@types/react@18.3.12)(react@18.3.1):
-    resolution: {integrity: sha512-tRUrJ7sr8fBeRotQO7wr2Y3PWKl9B09GIwbC0G7cK0YDNftIKhOm8jMq3B+6mjsppUcMhaOyA9/bo2kRfFWeYA==}
+  /cross-state@0.48.0(@types/react@18.3.12)(react@18.3.1):
+    resolution: {integrity: sha512-QP+tnQ8n0WpdXLTe8rOKbYXqBYfJGW22xyc8DYScQy+yP+yWrU6jTy/ba1a16yyglsIlKkS8fweheoaxznghLQ==}
     peerDependencies:
       '@types/react': '>=16.8.0'
       mutative: '>=1.0.3'

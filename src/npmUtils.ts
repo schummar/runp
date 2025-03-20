@@ -19,6 +19,8 @@ export async function loadNpmPackage(pkg: string): Promise<{ name: string; scrip
   }
 }
 
+const supportedNpmRunners = ['npm', 'pnpm', 'yarn'] as const;
+
 export async function loadNpmWorkspaceScripts(cwd: string): Promise<{ scriptName: string; scriptCommand: (args: string[]) => string[] }[]> {
   const npmRunner = await whichNpmRunner(cwd);
   const workspaceRoot = resolve(cwd);
@@ -67,6 +69,10 @@ export async function loadNpmWorkspaceScripts(cwd: string): Promise<{ scriptName
 }
 
 export async function whichNpmRunner(cwd: string) {
+  if ((supportedNpmRunners as unknown as string[]).includes(process.env.RUNP_PACKAGE_MANAGER ?? '')) {
+    return process.env.RUNP_PACKAGE_MANAGER as (typeof supportedNpmRunners)[number];
+  }
+
   if (process.env.npm_config_user_agent?.startsWith('yarn/')) {
     return 'yarn';
   } else if (process.env.npm_config_user_agent?.startsWith('pnpm/')) {

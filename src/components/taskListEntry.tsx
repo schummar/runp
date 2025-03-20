@@ -1,16 +1,10 @@
 import { Paragraph, Text } from '@schummar/react-terminal';
 import { useStore } from 'cross-state/react';
-import { useEffect } from 'react';
 import { statusIcons } from '../statusIcons';
 import { Task } from '../task';
-import { WriteLineGrouped } from './renderTaskList';
 import { Spinner } from './spinner';
 
-export function TaskListEntry({
-  command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity, linearOutput },
-  state,
-  writeLine,
-}: Task & { writeLine: WriteLineGrouped }) {
+export function TaskListEntry({ command: { keepOutput, forever, outputLength, displayTimeOver = -Infinity, linearOutput }, state }: Task) {
   const status = useStore(state, (x) => x.status);
   const statusString = useStore(state, (x) => x.statusString);
   const title = useStore(state, (x) => x.title);
@@ -30,24 +24,6 @@ export function TaskListEntry({
 
     return undefined;
   });
-
-  useEffect(() => {
-    if (!linearOutput) {
-      return;
-    }
-
-    let offset = 0;
-
-    return state
-      .map((x) => x.output)
-      .subscribe((output) => {
-        const newOutput = output.slice(offset);
-        if (newOutput) {
-          writeLine(newOutput, state);
-        }
-        offset = output.length;
-      });
-  }, [linearOutput, state]);
 
   return (
     <Paragraph>
@@ -92,7 +68,7 @@ export function TaskListEntry({
 
       {subTasks?.map((task, index) => (
         <Paragraph key={index} margin={[0, 0, 0, 2]}>
-          <TaskListEntry writeLine={writeLine} {...task} />
+          <TaskListEntry {...task} />
         </Paragraph>
       ))}
     </Paragraph>

@@ -1,6 +1,6 @@
 import { RenderOptions } from '@schummar/react-terminal';
 import pty from 'node-pty';
-import { setTimeout } from 'timers/promises';
+import { setTimeout } from 'node:timers/promises';
 import { describe, expect, test } from 'vitest';
 import { Terminal } from 'xterm-headless';
 import { resolveCommands, runp } from '../src';
@@ -348,6 +348,50 @@ describe.concurrent('runp', () => {
       });
 
       expect(exact.map((x) => [x.cmd, ...x.args].join(' '))).toStrictEqual(['pnpm run --silent @complex/name:with:colons']);
+    });
+  });
+
+  describe('linear outout', () => {
+    test('updating output', async () => {
+      const term = new TestTerminal({ cols: 25, rows: 15 });
+
+      const [result] = await runp({
+        commands: [
+          {
+            name: 'command',
+            async cmd({ updateOutput }) {
+              updateOutput('line 1');
+              updateOutput('line 2');
+              await setTimeout(1000);
+              updateOutput('line 3');
+            },
+          },
+        ],
+        target: term,
+        linearOutput: true,
+      });
+
+      await poll(
+        () =>
+          expect(term.getBuffer()).toEqual([
+            '                         ',
+            '-- [command] ->          ',
+            '                         ',
+            'line 1                   ',
+            'line 2                   ',
+            'line 3                   ',
+            '                         ',
+            '<- [command] --          ',
+            '                         ',
+            '✓ command [#.###s]       ',
+            '                         ',
+            '                         ',
+            '                         ',
+            '                         ',
+            '                         ',
+          ]),
+        1000,
+      );
     });
   });
 });
