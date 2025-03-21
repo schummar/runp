@@ -45,6 +45,7 @@ export interface RunpCommand extends RunpCommonOptions {
   dependsOn: Array<string | number>;
   /** Set cwd for command */
   cwd: string;
+  subCommands?: RunpCommand[];
 }
 
 export interface RunpFeedback {
@@ -53,10 +54,11 @@ export interface RunpFeedback {
   updateOutput(output: string): void;
 }
 
-export interface RunpCommandRaw extends Omit<Partial<RunpCommand>, 'args' | 'dependsOn'> {
-  cmd: RunpCommand['cmd'];
+export interface RunpCommandRaw extends Omit<Partial<RunpCommand>, 'args' | 'dependsOn' | 'subCommands'> {
+  cmd?: RunpCommand['cmd'];
   args?: (string | false | undefined | null)[];
   dependsOn?: string | number | Array<string | number>;
+  subCommands?: RunpCommandRaw[];
 }
 
 type Commands = (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
@@ -195,6 +197,7 @@ export async function resolveCommands(options: RunpOptions) {
     const cleanCommand: RunpCommand = {
       ...command,
       id: command.id ?? getFreeId(),
+      cmd: command.cmd ?? '',
       args: command.args?.filter((x): x is string => typeof x === 'string') ?? [],
       cwd: resolve(command.cwd ?? '.'),
       dependsOn: [],
@@ -204,6 +207,7 @@ export async function resolveCommands(options: RunpOptions) {
       displayTimeOver: command.displayTimeOver ?? options.displayTimeOver,
       linearOutput: command.linearOutput ?? options.linearOutput,
       env: command.env ?? process.env,
+      subCommands: command.subCommands?.length ? await resolveCommands({ ...options, commands: command.subCommands }) : [],
     };
 
     const cmd = cleanCommand.cmd;

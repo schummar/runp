@@ -44,7 +44,19 @@ export function trackLinearOutput(tasks: Task[], writeLine: (line: string, optio
     writeLine(text);
   };
 
-  tasks.forEach((task) =>
+  for (const task of tasks) {
+    task.run(writeLineGrouped);
+  }
+
+  const tracked = new Set<Task>();
+  tasks.forEach(trackCompletion);
+
+  function trackCompletion(task: Task) {
+    if (tracked.has(task)) {
+      return;
+    }
+    tracked.add(task);
+
     task.result
       .catch(() => undefined)
       .finally(() => {
@@ -52,10 +64,12 @@ export function trackLinearOutput(tasks: Task[], writeLine: (line: string, optio
           endTask();
           currentTask = undefined;
         }
-      }),
-  );
+      });
 
-  for (const task of tasks) {
-    task.run(writeLineGrouped);
+    task.state
+      .map((x) => x.subTasks)
+      .subscribe((subTasks) => {
+        subTasks.forEach(trackCompletion);
+      });
   }
 }

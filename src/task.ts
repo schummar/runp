@@ -18,7 +18,7 @@ export interface TaskState {
   rawOutput: string;
   output: string;
   time?: number;
-  subTasks?: Task[];
+  subTasks: Task[];
 }
 
 export function task(command: RunpCommand, allTasks: () => Task[], q = createQueue()): Task {
@@ -31,6 +31,7 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
     title: (name ?? fullCmd) + cwdDisplay,
     rawOutput: '',
     output: '',
+    subTasks: command.subCommands?.map((subCommand) => task(subCommand, allTasks, q)) ?? [],
   });
 
   const result = new Promise<RunpResult>((resolve) => {
@@ -79,91 +80,100 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
         }
 
         const start = performance.now();
-        state.set('status', 'inProgress');
+        try {
+          state.set('status', 'inProgress');
 
-        if (cmd instanceof Function) {
-          try {
-            await cmd({
-              updateStatus(status) {
-                state.set('statusString', status);
-              },
-              updateTitle(title) {
-                state.set('title', title);
-              },
-              updateOutput(output) {
-                state.set('rawOutput', (rawOutput) => rawOutput + output);
-                state.set('output', output);
-                writeLine(output, thisTask);
-              },
+          if (cmd instanceof Function) {
+            function updateStatus(status: string) {
+              state.set('statusString', status);
+            }
+
+            function updateTitle(title: string) {
+              state.set('title', title);
+            }
+
+            function updateOutput(output: string) {
+              state.set('rawOutput', (rawOutput) => rawOutput + output);
+              state.set('output', output);
+              writeLine(output, thisTask);
+            }
+
+            try {
+              await cmd({ updateStatus, updateTitle, updateOutput });
+            } catch (error) {
+              const message = error instanceof Error ? error.toString() : typeof error === 'object' ? JSON.stringify(error) : String(error);
+              updateOutput(message);
+
+              throw error;
+            }
+          } else if (cmd) {
+            const isTTY = process.stdout.isTTY || process.env.RUNP_TTY;
+
+            await new Promise<void>((resolve, reject) => {
+              const subProcess = spawn(cmd, args, {
+                shell: process.platform === 'win32',
+                stdio: 'pipe',
+                cwd,
+                env: {
+                  ...env,
+                  FORCE_COLOR: isTTY ? '1' : undefined, // Some libs color output when this env var is set
+                  RUNP: RUNP_TASK_V, // Tell child processes, especially runp itself, that they are running in runp
+                  RUNP_TTY: isTTY ? '1' : undefined, // Runp child processes can print as if they were running in a tty
+                },
+              });
+
+              const append = (data: any) => {
+                const chunk = data.toString();
+                state.set('rawOutput', (rawOutput) => rawOutput + chunk);
+                state.set('output', state.get().rawOutput.includes(RUNP_TASK_DELEGATE) ? '' : state.get().rawOutput);
+                if (!chunk.includes(RUNP_TASK_DELEGATE)) {
+                  writeLine?.(data.toString(), thisTask);
+                }
+              };
+              subProcess.stdout.on('data', append);
+              subProcess.stderr.on('data', append);
+
+              subProcess.on('close', async (code) => {
+                if (code) {
+                  reject(new Error(`Process exited with code ${code}`));
+                  return;
+                }
+
+                const { rawOutput } = state.get();
+
+                const delegationStart = rawOutput.indexOf(RUNP_TASK_DELEGATE);
+                const delegationEnd = rawOutput.indexOf(RUNP_TASK_DELEGATE, delegationStart + 1);
+                if (delegationStart >= 0 && delegationEnd > delegationStart) {
+                  const json = rawOutput.slice(delegationStart + RUNP_TASK_DELEGATE.length, delegationEnd);
+                  const commands = JSON.parse(json) as RunpCommand[];
+                  const tasks: Task[] = commands.map((command) => task(command, () => tasks, q));
+
+                  state.set('output', '');
+                  state.set('subTasks', (subTasks) => [...tasks, ...subTasks]);
+                }
+
+                resolve();
+              });
+
+              subProcess.on('error', reject);
             });
-
-            state.set('status', 'done');
-          } catch (error) {
-            state.set('status', 'error');
-            state.set('output', String(error));
-            writeLine(String(error), thisTask);
-          } finally {
-            state.set('time', performance.now() - start);
-          }
-
-          return;
-        }
-
-        const isTTY = process.stdout.isTTY || process.env.RUNP_TTY;
-
-        const subProcess = spawn(cmd, args, {
-          shell: process.platform === 'win32',
-          stdio: 'pipe',
-          cwd,
-          env: {
-            ...env,
-            FORCE_COLOR: isTTY ? '1' : undefined, // Some libs color output when this env var is set
-            RUNP: RUNP_TASK_V, // Tell child processes, especially runp itself, that they are running in runp
-            RUNP_TTY: isTTY ? '1' : undefined, // Runp child processes can print as if they were running in a tty
-          },
-        });
-
-        const append = (data: any) => {
-          const chunk = data.toString();
-          state.set('rawOutput', (rawOutput) => rawOutput + chunk);
-          state.set('output', state.get().rawOutput.includes(RUNP_TASK_DELEGATE) ? '' : state.get().rawOutput);
-          if (!chunk.includes(RUNP_TASK_DELEGATE)) {
-            writeLine?.(data.toString(), thisTask);
-          }
-        };
-        subProcess.stdout.on('data', append);
-        subProcess.stderr.on('data', append);
-
-        subProcess.on('close', async (code) => {
-          const { rawOutput } = state.get();
-
-          const delegationStart = rawOutput.indexOf(RUNP_TASK_DELEGATE);
-          const delegationEnd = rawOutput.indexOf(RUNP_TASK_DELEGATE, delegationStart + 1);
-          if (delegationStart >= 0 && delegationEnd > delegationStart) {
-            const json = rawOutput.slice(delegationStart + RUNP_TASK_DELEGATE.length, delegationEnd);
-            const commands = JSON.parse(json) as RunpCommand[];
-            const tasks: Task[] = commands.map((command) => task(command, () => tasks, q));
-
-            state.set('output', '');
-            state.set('subTasks', tasks);
           }
 
           const { subTasks } = state.get();
-          let hasErrors = !!code;
+          const subResults = await Promise.all(subTasks.map((task) => task.run(writeLine)));
 
-          if (subTasks) {
-            const subResults = await Promise.all(subTasks.map((task) => task.run(writeLine)));
-            hasErrors = subResults.some((x) => x.result === 'error');
+          if (subResults.some((x) => x.result === 'error')) {
+            throw new Error('Subtask failed');
           }
 
-          state.set('status', hasErrors ? 'error' : 'done');
+          state.set('status', 'done');
+        } catch {
+          state.set('status', 'error');
+          // state.set('output', String(error));
+          // writeLine(String(error), thisTask);
+        } finally {
           state.set('time', performance.now() - start);
-        });
-
-        subProcess.on('error', (error) => {
-          state.set('output', String(error));
-          writeLine(String(error), thisTask);
-        });
+        }
       });
 
       return result;
