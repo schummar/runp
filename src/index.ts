@@ -58,13 +58,13 @@ export interface RunpCommandRaw extends Omit<Partial<RunpCommand>, 'args' | 'dep
   cmd?: RunpCommand['cmd'];
   args?: (string | false | undefined | null)[];
   dependsOn?: string | number | Array<string | number>;
-  subCommands?: RunpCommandRaw[];
+  subCommands?: RunpCommandArg[];
 }
 
-type Commands = (string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null)[];
+export type RunpCommandArg = string | [cmd: string, ...args: string[]] | RunpCommandRaw | false | undefined | null;
 export type RunpResult = { result: 'success'; output: string } | { result: 'error'; output: string };
 
-export interface RunpOptions<TCommands extends Commands = Commands> extends RunpCommonOptions {
+export interface RunpOptions<TCommands extends RunpCommandArg[] = RunpCommandArg[]> extends RunpCommonOptions {
   /** A list of command to execute in parallel */
   commands: TCommands;
   /** Maximum number of parallel tasks */
@@ -78,7 +78,7 @@ export const RUNP_TASK_DELEGATE = `__runp_task__${RUNP_TASK_V}__`;
 
 const switchRegexp = /s|p|f(=(true|false))?|k(=(true|false))?|n=\d+/g;
 
-export async function runp<const TCommands extends Commands = Commands>(
+export async function runp<const TCommands extends RunpCommandArg[] = RunpCommandArg[]>(
   options: RunpOptions<TCommands>,
 ): Promise<{ [K in keyof TCommands]: RunpResult }> {
   const resolvedCommands = await resolveCommands(options);
