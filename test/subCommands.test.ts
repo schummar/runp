@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { runp } from '../src';
-import { TestTerminal } from './_helpers';
+import { poll, TestTerminal } from './_helpers';
+import { setTimeout } from 'timers/promises';
 
 test('subCommands', async () => {
   const term = new TestTerminal({ cols: 30, rows: 20 });
@@ -27,7 +28,9 @@ test('subCommands', async () => {
     linearOutput: true,
   });
 
-  expect(term.getBuffer()).toMatchInlineSnapshot(`
+  await poll(
+    () =>
+      expect(term.getBuffer()).toMatchInlineSnapshot(`
     [
       "                              ",
       "-- [subCommand 1] ->          ",
@@ -50,5 +53,7 @@ test('subCommands', async () => {
       "                              ",
       "                              ",
     ]
-  `);
+  `),
+    1000,
+  );
 });
