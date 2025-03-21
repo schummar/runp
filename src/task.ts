@@ -26,12 +26,15 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
   const fullCmd = [cmd, ...args].join(' ');
   const cwdDisplay =
     cwd && cwd !== process.cwd() ? (cwd.startsWith(process.cwd()) ? ` (./${cwd.slice(process.cwd().length + 1)})` : ` (${cwd})`) : '';
+
+  const subTasks: Task[] = command.subCommands?.map((subCommand) => task(subCommand, () => subTasks, q)) ?? [];
+
   const state = createStore<TaskState>({
     status: 'pending',
     title: (name ?? fullCmd) + cwdDisplay,
     rawOutput: '',
     output: '',
-    subTasks: command.subCommands?.map((subCommand) => task(subCommand, allTasks, q)) ?? [],
+    subTasks,
   });
 
   const result = new Promise<RunpResult>((resolve) => {
@@ -146,10 +149,10 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
                 if (delegationStart >= 0 && delegationEnd > delegationStart) {
                   const json = rawOutput.slice(delegationStart + RUNP_TASK_DELEGATE.length, delegationEnd);
                   const commands = JSON.parse(json) as RunpCommand[];
-                  const tasks: Task[] = commands.map((command) => task(command, () => tasks, q));
+                  const subTasks: Task[] = commands.map((command) => task(command, () => subTasks, q));
 
                   state.set('output', '');
-                  state.set('subTasks', (subTasks) => [...tasks, ...subTasks]);
+                  state.set('subTasks', (subTasks) => [...subTasks, ...subTasks]);
                 }
 
                 resolve();
@@ -169,8 +172,6 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
           state.set('status', 'done');
         } catch {
           state.set('status', 'error');
-          // state.set('output', String(error));
-          // writeLine(String(error), thisTask);
         } finally {
           state.set('time', performance.now() - start);
         }

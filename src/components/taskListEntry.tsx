@@ -38,7 +38,7 @@ export function TaskListEntry({ command: { keepOutput, forever, outputLength, di
       ) : status === 'done' ? (
         <Text color="green">{statusIcons.done}</Text>
       ) : (
-        <Text color="red">{statusIcons.error}</Text>
+        <Text color="red">{statusIcons[status]}</Text>
       )}
       <Text>&nbsp;</Text>
 
