@@ -68,13 +68,7 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
       q.schedule(async () => {
         await Promise.resolve();
 
-        const dependencies = allTasks().filter(
-          (j) =>
-            dependsOn !== undefined &&
-            j.command.id !== undefined &&
-            (Array.isArray(dependsOn) ? dependsOn.includes(j.command.id) : dependsOn === j.command.id),
-        );
-
+        const dependencies = allTasks().filter((j) => dependsOn.includes(j.command.id));
         const depResults = await Promise.all(dependencies.map((j) => j.result));
 
         if (depResults.some((x) => x.result === 'error')) {
@@ -129,7 +123,7 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
                 const chunk = data.toString();
                 state.set('rawOutput', (rawOutput) => rawOutput + chunk);
                 state.set('output', state.get().rawOutput.includes(RUNP_TASK_DELEGATE) ? '' : state.get().rawOutput);
-                if (!chunk.includes(RUNP_TASK_DELEGATE)) {
+                if (!state.get().rawOutput.includes(RUNP_TASK_DELEGATE)) {
                   writeLine?.(data.toString(), thisTask);
                 }
               };
@@ -149,10 +143,10 @@ export function task(command: RunpCommand, allTasks: () => Task[], q = createQue
                 if (delegationStart >= 0 && delegationEnd > delegationStart) {
                   const json = rawOutput.slice(delegationStart + RUNP_TASK_DELEGATE.length, delegationEnd);
                   const commands = JSON.parse(json) as RunpCommand[];
-                  const subTasks: Task[] = commands.map((command) => task(command, () => subTasks, q));
+                  const newSubTasks: Task[] = commands.map((command) => task(command, () => newSubTasks, q));
 
                   state.set('output', '');
-                  state.set('subTasks', (subTasks) => [...subTasks, ...subTasks]);
+                  state.set('subTasks', (subTasks) => [...newSubTasks, ...subTasks]);
                 }
 
                 resolve();

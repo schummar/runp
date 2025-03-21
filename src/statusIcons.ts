@@ -4,5 +4,5 @@ export const statusIcons = {
   dependencyError: '↳',
   pending: '↳',
   forever: '⯈',
-  inProgress: null,
+  inProgress: '⠋',
 };

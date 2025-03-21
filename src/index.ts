@@ -99,7 +99,7 @@ export async function runp<const TCommands extends RunpCommandArg[] = RunpComman
     process.exit();
   }
 
-  const q = createQueue({ parallel: options.parallelTasks ?? 5 });
+  const q = createQueue({ parallel: options.parallelTasks ?? 10 });
   const tasks: Task[] = resolvedCommands.map((cmd) => task(cmd, () => tasks, q));
 
   let stop;
@@ -316,12 +316,20 @@ function renderTTY(tasks: ReturnType<typeof task>[], target?: RenderOptions['tar
 }
 
 async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
-  trackLinearOutput(tasks, (line: string) => console.log(line));
+  if (margin === 0) {
+    trackLinearOutput(tasks, (line: string) => console.log(line));
+
+    if (tasks.some((task) => task.command.linearOutput)) {
+      await Promise.all(tasks.map((task) => task.result));
+    }
+
+    console.log('\n');
+  }
 
   for (const { command, result, state } of tasks) {
     const { linearOutput, keepOutput, displayTimeOver = -Infinity } = command;
     await result;
-    const { status, statusString = statusIcons[status], title, subTasks, time } = state.get();
+    const { status, statusString = statusIcons[status] ?? status, title, subTasks, time } = state.get();
     const output = state.get().output.trim();
     const showOutput = !linearOutput && (status === 'error' || keepOutput) && output.length > 0;
     const timeString = time !== undefined && time >= displayTimeOver ? ` [${formatTime(time)}]` : '';
@@ -333,7 +341,7 @@ async function renderNonTTY(tasks: ReturnType<typeof task>[], margin = 0) {
     }
 
     if (subTasks) {
-      renderNonTTY(subTasks, margin + 1);
+      await renderNonTTY(subTasks, margin + 1);
     }
   }
 }

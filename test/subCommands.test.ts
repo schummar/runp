@@ -26,13 +26,11 @@ describe('subCommands', () => {
 
     expect(term.getBuffer()).toMatchInlineSnapshot(`
       [
-        "                              ",
         "-- [subCommand 1] ->          ",
         "                              ",
         "subCommand 1                  ",
         "                              ",
         "<- [subCommand 1] --          ",
-        "                              ",
         "-- [echo subCommand 2] ->     ",
         "                              ",
         "subCommand 2                  ",
@@ -42,6 +40,8 @@ describe('subCommands', () => {
         "✓ command [#.###s]            ",
         "  ✓ subCommand 1 [#.###s]     ",
         "  ✓ echo subCommand 2 [#.###s]",
+        "                              ",
+        "                              ",
         "                              ",
         "                              ",
         "                              ",
@@ -66,7 +66,6 @@ describe('subCommands', () => {
 
     expect(term.getBuffer()).toMatchInlineSnapshot(`
       [
-        "                              ",
         "-- [echo ok] ->               ",
         "                              ",
         "ok                            ",
@@ -76,6 +75,7 @@ describe('subCommands', () => {
         "✕ command [#.###s]            ",
         "  ✕ exit 1 [#.###s]           ",
         "  ✓ echo ok [#.###s]          ",
+        "                              ",
         "                              ",
         "                              ",
         "                              ",

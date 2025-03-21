@@ -29,7 +29,6 @@ export function trackLinearOutput(tasks: Task[], writeLine: (line: string, optio
     if (task !== currentTask) {
       endTask();
 
-      writeLine('');
       writeLine(`-- [${task.state.get().title}] ->`, {
         grow: 1,
         shrink: 1,

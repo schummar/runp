@@ -1,7 +1,7 @@
 import { setTimeout } from 'node:timers/promises';
 import { describe, expect, test } from 'vitest';
 import { runp } from '../src';
-import { poll, TestTerminal } from './_helpers';
+import { TestTerminal } from './_helpers';
 
 describe('linear outout', () => {
   test('updating output', async () => {
@@ -23,27 +23,25 @@ describe('linear outout', () => {
       linearOutput: true,
     });
 
-    await poll(
-      () =>
-        expect(term.getBuffer()).toEqual([
-          '                         ',
-          '-- [command] ->          ',
-          '                         ',
-          'line 1                   ',
-          'line 2                   ',
-          'line 3                   ',
-          '                         ',
-          '<- [command] --          ',
-          '                         ',
-          '✓ command [#.###s]       ',
-          '                         ',
-          '                         ',
-          '                         ',
-          '                         ',
-          '                         ',
-        ]),
-      1000,
-    );
+    expect(term.getBuffer()).toMatchInlineSnapshot(`
+      [
+        "-- [command] ->          ",
+        "                         ",
+        "line 1                   ",
+        "line 2                   ",
+        "line 3                   ",
+        "                         ",
+        "<- [command] --          ",
+        "                         ",
+        "✓ command [#.###s]       ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+      ]
+    `);
   });
 
   test('error output', async () => {
@@ -64,26 +62,24 @@ describe('linear outout', () => {
       linearOutput: true,
     });
 
-    await poll(
-      () =>
-        expect(term.getBuffer()).toEqual([
-          '                         ',
-          '-- [command] ->          ',
-          '                         ',
-          'line 1                   ',
-          'Error: error line        ',
-          '                         ',
-          '<- [command] --          ',
-          '                         ',
-          '✕ command [#.###s]       ',
-          '                         ',
-          '                         ',
-          '                         ',
-          '                         ',
-          '                         ',
-          '                         ',
-        ]),
-      1000,
-    );
+    expect(term.getBuffer()).toMatchInlineSnapshot(`
+      [
+        "-- [command] ->          ",
+        "                         ",
+        "line 1                   ",
+        "Error: error line        ",
+        "                         ",
+        "<- [command] --          ",
+        "                         ",
+        "✕ command [#.###s]       ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+        "                         ",
+      ]
+    `);
   });
 });
