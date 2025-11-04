@@ -1,6 +1,6 @@
 {
   "name": "@schummar/runp",
-  "type": "commonjs",
+  "type": "module",
   "version": "0.0.0-develop",
   "description": "Neat parallel task execution",
   "keywords": [
@@ -19,11 +19,11 @@
     "name": "Marco Schumacher",
     "email": "marco@schumacher.dev"
   },
-  "main": "dist/index.js",
+  "main": "./dist/index.cjs",
   "bin": {
     "runp": "dist/cli.js"
   },
-  "types": "dist/index.d.ts",
+  "types": "./dist/index.d.cts",
   "scripts": {
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -31,11 +31,7 @@
     "lint": "tsx src/cli.ts lint:*",
     "lint:oxlint": "oxlint src",
     "lint:prettier": "prettier --check src",
-    "build": "tsx src/cli.ts build:clean :p build:compile:*",
-    "build:clean": "rimraf \"dist/**/*\"",
-    "build:compile:types": "tsc",
-    "build:compile:index": "NODE_ENV=production esbuild --bundle --platform=node src/index.ts --outfile=dist/index.js --sourcemap --minify",
-    "build:compile:cli": "esbuild --bundle --platform=node src/cli.ts --outfile=dist/cli.js --sourcemap --minify --external:.",
+    "build": "tsdown",
     "prepublishOnly": "tsx src/cli.ts test lint build :s publint"
   },
   "devDependencies": {
@@ -60,6 +56,7 @@
     "rimraf": "6.0.1",
     "schummar-queue": "0.2.0",
     "semantic-release": "24.2.3",
+    "tsdown": "^0.15.12",
     "tsx": "4.19.3",
     "typescript": "5.8.2",
     "vite": "6.2.2",
@@ -70,8 +67,8 @@
     "cli.js"
   ],
   "volta": {
-    "node": "22.14.0",
-    "pnpm": "10.6.5"
+    "node": "24.11.0",
+    "pnpm": "10.20.0"
   },
   "release": {
     "branches": [
@@ -94,5 +91,17 @@
       "node-pty",
       "esbuild"
     ]
+  },
+  "module": "./dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./cli": {
+      "import": "./dist/cli.js",
+      "require": "./dist/cli.cjs"
+    },
+    "./package.json": "./package.json"
   }
 }
